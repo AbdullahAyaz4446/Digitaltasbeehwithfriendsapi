@@ -103,18 +103,18 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var data3 = Db.Wazifa.FirstOrDefault(a => a.id == id && a.User_id == userid);
+                var data = Db.Wazifa.FirstOrDefault(a => a.id == id && a.User_id == userid);
 
-                if (data3 == null)
+                if (data == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Wazifa record not found.");
                 }
-                var data1 = Db.wazifa_Deatiles.Where(a => a.Wazifa_id == data3.id).ToList();
+                var data1 = Db.wazifa_Deatiles.Where(a => a.Wazifa_id == data.id).ToList();
                 var wazifaTextIds = data1.Select(d => d.wazifa_text_id).ToList();
                 var data2 = Db.wazifa_text.Where(a => wazifaTextIds.Contains(a.id)).ToList();
                 Db.wazifa_text.RemoveRange(data2); 
                 Db.wazifa_Deatiles.RemoveRange(data1);
-                Db.Wazifa.Remove(data3);
+                Db.Wazifa.Remove(data);
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "Delete Succesfully");
             }
