@@ -97,23 +97,24 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             }
             catch (Exception ex) { return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message); }
         }
+        //Delete wazifa api function
         [HttpGet]
         public HttpResponseMessage Deletecompletewazifa(int id,int userid)
         {
             try
             {
-                var data = Db.Wazifa.FirstOrDefault(a => a.id == id && a.User_id == userid);
+                var data3 = Db.Wazifa.FirstOrDefault(a => a.id == id && a.User_id == userid);
 
-                if (data == null)
+                if (data3 == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Wazifa record not found.");
                 }
-                var data1 = Db.wazifa_Deatiles.Where(a => a.Wazifa_id == data.id).ToList();
+                var data1 = Db.wazifa_Deatiles.Where(a => a.Wazifa_id == data3.id).ToList();
                 var wazifaTextIds = data1.Select(d => d.wazifa_text_id).ToList();
                 var data2 = Db.wazifa_text.Where(a => wazifaTextIds.Contains(a.id)).ToList();
                 Db.wazifa_text.RemoveRange(data2); 
                 Db.wazifa_Deatiles.RemoveRange(data1);
-                Db.Wazifa.Remove(data);
+                Db.Wazifa.Remove(data3);
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "Delete Succesfully");
             }
