@@ -120,7 +120,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-               
+
 
                 var tasbeehProgress = Db.groupusertasbeehdeatiles
                     .Join(Db.GroupTasbeeh, gutd => gutd.Group_Tasbeeh_Id, gt => gt.ID, (gutd, gt) => new
@@ -138,14 +138,15 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     .Join(Db.Users, g => g.GroupUser.Members_id, u => u.ID, (g, u) => new
                     {
                         TasbeehID = g.GroupTasbeeh.Tasbeeh_id,
-                        Groupid =g.GroupUser.Group_id,
+                        Groupid = g.GroupUser.Group_id,
                         TasbeehGoal = g.GroupTasbeeh.Goal,
                         Achieved = g.GroupTasbeeh.Achieved,
                         Username = u.Username,
-                        Status=u.Status,
+                        Status = u.Status,
                         AssignCount = g.GroupUserTasbeehDetails.Assign_count,
                         CurrentCount = g.GroupUserTasbeehDetails.Current_count,
-                        
+                        Adminid = Db.Groups.Where(a => a.ID == groupId).Select(a => a.Admin_id).FirstOrDefault()
+
                     })
                     .ToList();
                 return Request.CreateResponse(HttpStatusCode.OK, tasbeehProgress);
@@ -201,7 +202,24 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var data = Db.GroupTasbeeh.Where(a => a.Group_id == groupid).ToList();
+                var data = Db.GroupTasbeeh
+          .Where(a => a.Group_id == groupid)
+          .ToList()
+          .Select(gt =>
+          {
+              var tasbeeh = Db.Tasbeeh.FirstOrDefault(t => t.ID == gt.Tasbeeh_id);
+              var wazifa = Db.Wazifa.FirstOrDefault(w => w.id == gt.Tasbeeh_id);
+
+              return new
+              {
+                  id=gt.ID,
+                  title = tasbeeh != null ? tasbeeh.Tasbeeh_Title : (wazifa != null ? wazifa.Wazifa_Title : "N/A"),
+                  Goal = gt.Goal,
+                  Achieved = gt.Achieved,
+                  deadline = gt.End_date,
+                  status = gt.Status
+              };
+          }).ToList();
                 return Request.CreateResponse(HttpStatusCode.OK, data);
 
             }

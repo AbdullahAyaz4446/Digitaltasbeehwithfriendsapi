@@ -68,18 +68,31 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var data = Db.GroupTasbeeh.Where(a => a.ID == id).FirstOrDefault();
-                data.Status = "Active";
-                Db.SaveChanges();
-                return Request.CreateResponse(HttpStatusCode.OK, "Succesfully Active");
+                var selectedTasbeeh = Db.GroupTasbeeh.FirstOrDefault(a => a.ID == id);
+                if (selectedTasbeeh == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Tasbeeh not found.");
+                }
+                var allGroupTasbeehs = Db.GroupTasbeeh
+                    .Where(gt => gt.Group_id == selectedTasbeeh.Group_id && gt.ID != id)
+                    .ToList();
 
+                foreach (var tasbeeh in allGroupTasbeehs)
+                {
+                    tasbeeh.Status = "Unactive";
+                }
+                selectedTasbeeh.Status = "Active";
+
+                Db.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, "Successfully Activated");
             }
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-
             }
         }
+
         //Update Tasbeeh in group Function
         [HttpGet]
         public HttpResponseMessage UpdateTasbeehdate(GroupTasbeeh gt)

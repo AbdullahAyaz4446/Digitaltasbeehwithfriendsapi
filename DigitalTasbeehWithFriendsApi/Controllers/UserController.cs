@@ -375,11 +375,10 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     {
                         TasbeehID = res.GroupTasbeeh.Tasbeeh_id,
                         GroupTitle = res.Group.Group_Title,
-                        TasbeehGoal = res.GroupTasbeeh.Goal,
-                        Achieved = res.GroupTasbeeh.Achieved,
                         Username = res.users.Username,
                         Goal = res.groupusertasbeehdeatiles.Assign_count,
-                        Current = res.groupusertasbeehdeatiles.Current_count
+                        Current = res.groupusertasbeehdeatiles.Current_count,
+                        deadline = res.GroupTasbeeh.End_date 
                     })
                     .FirstOrDefault();
 
