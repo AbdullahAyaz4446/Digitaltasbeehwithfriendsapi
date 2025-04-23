@@ -123,5 +123,5 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-    }
+      }
 }

@@ -1,10 +1,12 @@
 ﻿using DigitalTasbeehWithFriendsApi.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Http;
 
 namespace DigitalTasbeehWithFriendsApi.Controllers
@@ -43,34 +45,67 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         }
         //Tasbeeh Distribute Manully Send Request Function
         [HttpPost]
-        public HttpResponseMessage DistributeTasbeehManually(int groupid, List<int> id, Request r)
+        public HttpResponseMessage DistributeTasbeehManually()
         {
             try
             {
-                var adminid = Db.Groups.Where(g => g.ID == groupid).FirstOrDefault();
-                var tasbeehGoal = Db.GroupTasbeeh
-                    .FirstOrDefault(a => a.Group_id == groupid && a.Status == "Active");
-                var selectedMembers = Db.GroupUsers
-                    .Where(g => g.Group_id == groupid && id.Contains(g.Members_id))
-                    .Join(Db.Users, gu => gu.Members_id, usr => usr.ID, (gu, usr) => new { gu, usr })
-                    .Where(member => member.usr.Status == "Online")
-                    .ToList();
-                foreach (var member in selectedMembers)
+              
+                var form = HttpContext.Current.Request.Form;
+
+                int groupid = int.Parse(form["groupid"]); 
+
+               
+                List<int> id = JsonConvert.DeserializeObject<List<int>>(form["id"]);
+                List<int> count = JsonConvert.DeserializeObject<List<int>>(form["count"]);
+
+                var adminGroup = Db.Groups.FirstOrDefault(g => g.ID == groupid);
+                if (adminGroup == null)
                 {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Group not found.");
+                }
+
+                var tasbeehGoal = Db.GroupTasbeeh 
+                    .FirstOrDefault(a => a.Group_id == groupid && a.Status == "Active");
+                if (tasbeehGoal == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "No active tasbeeh goal found for this group.");
+                }
+
+                for (int i = 0; i < id.Count; i++)
+                {
+                    int memberId = id[i];
+                    int assignedCount = count[i];
+                    bool isAdmin = memberId == adminGroup.Admin_id;
+
                     var newRequest = new Request
                     {
                         Tasbeeh_Id = tasbeehGoal.ID,
-                        Sender_id = adminid.Admin_id,
-                        Receiver_id = member.gu.Members_id,
-                        Group_id = adminid.ID,
-                        Assigned_count =r.Assigned_count, 
-                        Send_at = DateTime.Now
+                        Sender_id = adminGroup.Admin_id,
+                        Receiver_id = memberId,
+                        Group_id = adminGroup.ID,
+                        Assigned_count = assignedCount,
+                        Send_at = DateTime.Now,
+                        Status = isAdmin ? "Accept" : "Pending",
+                        Accept_at = isAdmin ? DateTime.Now : (DateTime?)null
                     };
 
                     Db.Request.Add(newRequest);
-                }
-                Db.SaveChanges();
 
+                    if (isAdmin)
+                    {
+                        var gutd = new groupusertasbeehdeatiles
+                        {
+                            Group_Tasbeeh_Id = tasbeehGoal.ID,
+                            Group_user_id = memberId,
+                            Assign_count = assignedCount,
+                            startdate = DateTime.Now,
+                            Current_count = 0
+                        };
+                        Db.groupusertasbeehdeatiles.Add(gutd);
+                    }
+                }
+
+                Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "Requests sent successfully.");
             }
             catch (Exception ex)
@@ -78,6 +113,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
         //Tasbeeh Distribute Equally Send Request Function
         [HttpPost]
         public HttpResponseMessage DistributeTasbeehEqually(int groupid)
@@ -369,6 +405,36 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        // Distribute maunnaly Tasbeeh get Users who is online
+        [HttpGet]
+        public HttpResponseMessage ShowGroupm(int groupid)
+        {
+            try
+            {
+                var members = Db.GroupUsers.Join(Db.Groups, gu => gu.Group_id, g => g.ID, (gu, g) => new
+                {
+                    GroupUser = gu,
+                    Group = g
+                }).Join(Db.Users, gu => gu.GroupUser.Members_id, u => u.ID, (gu, u) => new
+                {
+                    GroupUser = gu.GroupUser,
+                    Group = gu.Group,
+                    User = u
+                }).Where(res => res.Group.ID == groupid && res.User.Status == "Online").Select(res => new
+                {
+                    Groupid = res.Group.ID,
+                    GroupTitle = res.Group.Group_Title,
+                    Admin = res.Group.Admin_id,
+                    Memberid = res.User.ID,
+                    Memmber = res.User.Username
+                }).ToList();
+                return Request.CreateResponse(HttpStatusCode.OK, members);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
             }
         }
     }

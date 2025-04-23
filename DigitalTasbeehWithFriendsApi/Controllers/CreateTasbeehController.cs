@@ -37,16 +37,19 @@ return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
         {
             try
             {
-                var data1 = Db.Tasbeeh.Where(a => a.ID == tabseehid && a.User_id == userid).FirstOrDefault();
-                var data = Db.Tasbeeh_Detailes.Where(a => a.Tasbeeh_id == data1.ID).ToList();
-                foreach(var d in data)
+                var data = Db.Tasbeeh.Where(a => a.ID == tabseehid && a.User_id == userid).FirstOrDefault();
+                var data1 = Db.Tasbeeh_Detailes.Where(a => a.Tasbeeh_id == tabseehid).ToList();
+                if (data1 == null)
                 {
-                    Db.Tasbeeh_Detailes.Remove(d);
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
                 }
-             
-                Db.Tasbeeh.Remove(data1 );
+                var qurantextid = data1.Select(d => d.Quran_Tasbeeh_id).ToList();
+                var data2 = Db.Quran_Tasbeeh.Where(a => qurantextid.Contains(a.ID)).ToList();
+                Db.Quran_Tasbeeh.RemoveRange(data2);
+                Db.Tasbeeh_Detailes.RemoveRange(data1);
+                Db.Tasbeeh.Remove(data);
                 Db.SaveChanges();
-                return Request.CreateResponse(HttpStatusCode.OK,data1.ID);
+                return Request.CreateResponse(HttpStatusCode.OK,"Delete Succesfully");
 
             }catch(Exception ex)
             {
