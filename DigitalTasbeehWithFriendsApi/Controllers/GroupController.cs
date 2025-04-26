@@ -145,7 +145,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Status = u.Status,
                         AssignCount = g.GroupUserTasbeehDetails.Assign_count,
                         CurrentCount = g.GroupUserTasbeehDetails.Current_count,
-                        Adminid = Db.Groups.Where(a => a.ID == groupId).Select(a => a.Admin_id).FirstOrDefault()
+                        Adminid = Db.Groups.Where(a => a.ID == groupId).Select(a => a.Admin_id).FirstOrDefault(),
+                        userid=u.ID
 
                     })
                     .ToList();

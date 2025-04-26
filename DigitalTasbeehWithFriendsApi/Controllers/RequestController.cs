@@ -248,6 +248,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 if(gutddata != null)
                 {
                     gutddata.Assign_count = gutddata.Assign_count + data.Request.Assigned_count;
+                    Db.SaveChanges();
                     return Request.CreateResponse(HttpStatusCode.OK, "Request accepted successfully.");
                 }
                 var gutd = new groupusertasbeehdeatiles

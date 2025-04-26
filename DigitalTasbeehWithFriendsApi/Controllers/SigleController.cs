@@ -48,7 +48,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var data = Db.SingleTasbeeh.Where(a => a.User_id == userid);
+                var data = Db.SingleTasbeeh.Where(a => a.User_id == userid).ToList();
                 if(data == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No Signle Tasbeeh Found For Specfix Member");

@@ -434,7 +434,6 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Group = gt.Group,
                         GroupUsers = gu
                     })
-
                     .Join(Db.Users, g => g.GroupUsers.Members_id, u => u.ID, (g, u) => new
                     {
                         GroupTasbeeh = g.GroupTasbeeh,
@@ -442,21 +441,21 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Group = g.Group,
                         GroupUsers = g.GroupUsers,
                         users = Db.Users.Where(a => a.ID == userid).FirstOrDefault()
-                    })
+                    }).Where(a=>a.GroupTasbeeh.ID==a.groupusertasbeehdeatiles.Group_Tasbeeh_Id&& groupuserid == a.groupusertasbeehdeatiles.Group_user_id&&a.groupusertasbeehdeatiles.Group_Tasbeeh_Id==a.GroupTasbeeh.ID&&a.GroupTasbeeh.Status=="Active")
                     .Select(res => new
                     {
                         TasbeehID = res.GroupTasbeeh.ID,
                         Enddate = res.GroupTasbeeh.End_date,
                         Groupuserid = res.GroupUsers.ID,
-                        memberid = res.GroupUsers.Members_id,
+                        memberid = res.groupusertasbeehdeatiles.Group_user_id,
                         Current = res.groupusertasbeehdeatiles.Current_count,
                         Adminid = res.Group.Admin_id,
                         Goal = res.groupusertasbeehdeatiles.Assign_count,
                         username = res.users.Username,
                         Grouptitle = res.Group.Group_Title
 
-                    })
-                    .FirstOrDefault();
+                    }).FirstOrDefault();
+       
                 if (tasbeehProgress.Current == tasbeehProgress.Goal)
                 {
                     var tasbeehid = tasbeehProgress.TasbeehID;
@@ -470,7 +469,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     var no = new Notification
                     {
                         Sender_id = tasbeehProgress.Adminid,
-                        Receiver_id = tasbeehProgress.memberid,
+                        Receiver_id = tasbeehProgress.memberid??0,
                         Detail = tasbeehProgress.Adminid == userid ? adminMessage : detailMessage
 
                     };
@@ -497,7 +496,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         [HttpGet]
         public HttpResponseMessage Showallrequest(int userid)
         {
-            try
+            try 
             {
                 var allrequest = Db.Request.Join(Db.GroupTasbeeh, r => r.Tasbeeh_Id, gt => gt.ID, (r, gt) => new
                 {
@@ -524,11 +523,16 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 }).Where(d => d.Request.Status == "Pending" && d.Request.Receiver_id == userid)
                 .Select(data => new
                 {
+                    id = data.Request.ID,
                     GroupTitle = data.Group.Group_Title,
                     Count = data.Request.Assigned_count,
-
-                }).Distinct().ToList();
-                if (allrequest == null)
+                    Tasbeehname = Db.Tasbeeh.Any(a => a.ID == data.Grouptasbeeh.Tasbeeh_id)
+    ? Db.Tasbeeh.Where(a => a.ID == data.Grouptasbeeh.Tasbeeh_id).Select(a => new { Title = a.Tasbeeh_Title, Id = a.ID }).FirstOrDefault()
+    : Db.Wazifa.Where(a => a.id == data.Grouptasbeeh.Tasbeeh_id).Select(a => new { Title = a.Wazifa_Title, Id = a.id }).FirstOrDefault(),
+    })
+    .Distinct()
+    .ToList();
+                if (allrequest == null) 
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No Notification Found");
                 }
