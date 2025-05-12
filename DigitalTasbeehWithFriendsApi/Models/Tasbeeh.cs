@@ -17,5 +17,7 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public int ID { get; set; }
         public string Tasbeeh_Title { get; set; }
         public int User_id { get; set; }
+        public Nullable<bool> Flag { get; set; }
+        public string Type { get; set; }
     }
 }

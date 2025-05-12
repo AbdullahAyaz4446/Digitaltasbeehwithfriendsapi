@@ -12,10 +12,10 @@ namespace DigitalTasbeehWithFriendsApi.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Wazifa
+    public partial class Chaintasbeehdeatiles
     {
         public int id { get; set; }
-        public string Wazifa_Title { get; set; }
-        public int User_id { get; set; }
+        public Nullable<int> Tasbeeh_id { get; set; }
+        public Nullable<int> Existing_Tasbeehid { get; set; }
     }
 }

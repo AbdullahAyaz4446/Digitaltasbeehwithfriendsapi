@@ -2,17 +2,21 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Objects;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Web;
+//using System.Web.Http.Cors;
 using System.Web.Http;
 
 namespace DigitalTasbeehWithFriendsApi.Controllers
 {
+    //[EnableCors(origins: "*", headers: "*", methods:"*")]
     public class RequestController : ApiController
-    {
+    { 
         DTWFEntities Db = new DTWFEntities();
         //Group Members fucntion you want to distribute tasbeeh
         [HttpGet]
@@ -65,7 +69,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 }
 
                 var tasbeehGoal = Db.GroupTasbeeh 
-                    .FirstOrDefault(a => a.Group_id == groupid && a.Status == "Active");
+                    .FirstOrDefault(a => a.Group_id == groupid && a.Status == "avalible");
                 if (tasbeehGoal == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No active tasbeeh goal found for this group.");
@@ -121,17 +125,18 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             try
             {
                 var adminGroup = Db.Groups.FirstOrDefault(g => g.ID == groupid);
+
                 var tasbeehgoal = Db.GroupTasbeeh
                     .FirstOrDefault(a => a.Group_id == groupid && a.Status == "Active");
                 var groupmembers = Db.GroupUsers
                     .Where(g => g.Group_id == groupid)
                     .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
-                    .Where(member => member.u.Status == "Online")
+                    .Where(member => member.u.Status == "avalible")
                     .ToList();
                 int count = groupmembers.Count;
                 if (count == 0)
                 {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest, "No online members found.");
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "No avalible members found.");
                 }
                 int assignCount = tasbeehgoal.Goal / count;
                 int assigncountreminder = tasbeehgoal.Goal % count;
@@ -283,7 +288,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 var groupmembers = Db.GroupUsers
                     .Where(g => g.Group_id == rejectrequest.Group_id&&g.Members_id!=rejectrequest.Receiver_id)
                     .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
-                    .Where(member => member.u.Status == "Online")
+                    .Where(member => member.u.Status == "avalible")
                     .ToList();
                 var count = rejectrequest.Assigned_count;
                 var members = groupmembers.Count();
@@ -345,7 +350,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                       AssignCount = g.GroupUserTasbeehDetails.Assign_count,
                       CurrentCount = g.GroupUserTasbeehDetails.Current_count,
                       Userid=u.ID
-                  }).Where(res=>res.Status=="Online")
+                  }).Where(res=>res.Status=="avalible")
                   .ToList();
                 var enddate = tasbeeh.Select(a => a.Enddate).FirstOrDefault();
                 var tomorrowdate = t.AddDays(1);
@@ -408,7 +413,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-        // Distribute maunnaly Tasbeeh get Users who is online
+        // Distribute maunnaly Tasbeeh get Users who is avalible
         [HttpGet]
         public HttpResponseMessage ShowGroupm(int groupid)
         {
@@ -423,7 +428,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     GroupUser = gu.GroupUser,
                     Group = gu.Group,
                     User = u
-                }).Where(res => res.Group.ID == groupid && res.User.Status == "Online").Select(res => new
+                }).Where(res => res.Group.ID == groupid && res.User.Status == "avalible").Select(res => new
                 {
                     Groupid = res.Group.ID,
                     GroupTitle = res.Group.Group_Title,

@@ -18,7 +18,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             try
             {
 
-                var data = Db.Tasbeeh.Where(t=>t.User_id==userid).ToList();
+                var data = Db.Tasbeeh.Where(t=>t.User_id==userid&&t.Flag==false).ToList();// add flag here
                 if (data == null)
                 {
                     
@@ -37,17 +37,9 @@ return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
         {
             try
             {
-                var data = Db.Tasbeeh.Where(a => a.ID == tabseehid && a.User_id == userid).FirstOrDefault();
-                var data1 = Db.Tasbeeh_Detailes.Where(a => a.Tasbeeh_id == tabseehid).ToList();
-                if (data1 == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
-                }
-                var qurantextid = data1.Select(d => d.Quran_Tasbeeh_id).ToList();
-                var data2 = Db.Quran_Tasbeeh.Where(a => qurantextid.Contains(a.ID)).ToList();
-                Db.Quran_Tasbeeh.RemoveRange(data2);
-                Db.Tasbeeh_Detailes.RemoveRange(data1);
-                Db.Tasbeeh.Remove(data);
+                var data = Db.Tasbeeh.Where(a => a.ID == tabseehid && a.User_id == userid).FirstOrDefault();// add flag here
+                data.Flag = true;
+                
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK,"Delete Succesfully");
 
@@ -62,6 +54,7 @@ return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
         {
             try
             {
+                T.Flag = false;
                 Db.Tasbeeh.Add(T);
                 Db.SaveChanges();
                
@@ -178,7 +171,20 @@ public HttpResponseMessage AddQuranTasbeeh(string surahName, int ayahNumberFrom,
             }
         }
 
+        [HttpPost]
+        public HttpResponseMessage Chaintasbeeh(List<Chaintasbeehdeatiles> td)
+        {
+            try
+            {
+                Db.Chaintasbeehdeatiles.AddRange(td);
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "Chain Create Succesfully");
+            }
+            catch (Exception ex) { return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message); }
+        }
+
 
 
     }
 }
+  

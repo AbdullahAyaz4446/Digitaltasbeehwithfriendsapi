@@ -11,45 +11,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
     public class WazifaController : ApiController
     {
         DTWFEntities Db = new DTWFEntities();
-        //create wazifa function
-        [HttpPost]
-        public HttpResponseMessage Createwazifa(Wazifa w)
-        {
-            try
-            {
-                Db.Wazifa.Add(w);
-                Db.SaveChanges();
-
-                return Request.CreateResponse(HttpStatusCode.OK, w.id);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-        //update wazifa title function 
-        [HttpPost]
-        public HttpResponseMessage Updatewazifatitle(Wazifa w)
-        {
-            try
-            {
-                var data = Db.Wazifa.Where(a => a.id == w.id).FirstOrDefault();
-                if (data == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
-
-                }
-                data.Wazifa_Title = w.Wazifa_Title;
-                data.User_id = w.User_id;
-                Db.SaveChanges();
-                return Request.CreateResponse(HttpStatusCode.OK, "Update Succesfully");
-
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+    
+     
 
         //Add wazifa Text
         [HttpPost]
@@ -106,18 +69,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var data = Db.Wazifa.FirstOrDefault(a => a.id == id && a.User_id == userid);
-
-                if (data == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Wazifa record not found.");
-                }
-                var data1 = Db.wazifa_Deatiles.Where(a => a.Wazifa_id == data.id).ToList();
-                var wazifaTextIds = data1.Select(d => d.wazifa_text_id).ToList();
-                var data2 = Db.wazifa_text.Where(a => wazifaTextIds.Contains(a.id)).ToList();
-                Db.wazifa_text.RemoveRange(data2);
-                Db.wazifa_Deatiles.RemoveRange(data1);
-                Db.Wazifa.Remove(data);
+                var data = Db.Tasbeeh.FirstOrDefault(a => a.ID == id && a.User_id == userid);
+                data.Flag = true;
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "Delete Succesfully");
             }
@@ -151,8 +104,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             Count = data.Qurantasbeeh.Count
         })
         .ToList()
-    : Db.Wazifa
-        .Join(Db.wazifa_Deatiles, w => w.id, wd => wd.Wazifa_id, (w, wd) => new
+    : Db.Tasbeeh
+        .Join(Db.wazifa_Deatiles, w => w.ID, wd => wd.Wazifa_id, (w, wd) => new
         {
             wazifa = w,
             wazifadeatiles = wd
@@ -162,7 +115,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             wwd.wazifa,
             wazifaText = wt
         })
-        .Where(x => x.wazifa.id == id)
+        .Where(x => x.wazifa.ID == id)
         .Select(w => new
         {
             Text = w.wazifaText.text,
@@ -182,21 +135,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             }
             catch (Exception ex) { return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message); }
         }
-        [HttpPost]
-        public HttpResponseMessage Assigntosingletasbeeh(AssignToSingleTasbeeh td)
-        {
-            try
-            {
-                Db.AssignToSingleTasbeeh.Add(td);
-                Db.SaveChanges();
-                return Request.CreateResponse(HttpStatusCode.OK, "Single Assign Succesfully");
-
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+        
     }
 
 }

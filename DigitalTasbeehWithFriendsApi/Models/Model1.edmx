@@ -14,8 +14,17 @@
           <Property Name="Tasbeeh_id" Type="int" Nullable="false" />
           <Property Name="Goal" Type="int" Nullable="false" />
           <Property Name="Achieved" Type="int" Nullable="false" />
-          <Property Name="StartDate" Type="date" Nullable="false" />
-          <Property Name="EndDate" Type="date" />
+          <Property Name="status" Type="varchar" MaxLength="50" />
+          <Property Name="Startdate" Type="datetime" />
+          <Property Name="Enddate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Chaintasbeehdeatiles">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Tasbeeh_id" Type="int" />
+          <Property Name="Existing_Tasbeehid" Type="int" />
         </EntityType>
         <EntityType Name="Groups">
           <Key>
@@ -24,6 +33,7 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Group_Title" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="Admin_id" Type="int" Nullable="false" />
+          <Property Name="Flag" Type="bit" />
         </EntityType>
         <EntityType Name="GroupTasbeeh">
           <Key>
@@ -108,6 +118,7 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Title" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="User_id" Type="int" Nullable="false" />
+          <Property Name="Flag" Type="bit" />
         </EntityType>
         <EntityType Name="Sura">
           <Key>
@@ -123,6 +134,8 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Tasbeeh_Title" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="User_id" Type="int" Nullable="false" />
+          <Property Name="Flag" Type="bit" />
+          <Property Name="Type" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="Tasbeeh_Detailes">
           <Key>
@@ -142,14 +155,6 @@
           <Property Name="Password" Type="varchar" MaxLength="50" />
           <Property Name="Status" Type="varchar" MaxLength="10" />
         </EntityType>
-        <EntityType Name="Wazifa">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Wazifa_Title" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="User_id" Type="int" Nullable="false" />
-        </EntityType>
         <EntityType Name="wazifa_Deatiles">
           <Key>
             <PropertyRef Name="id" />
@@ -168,6 +173,7 @@
         </EntityType>
         <EntityContainer Name="DTWFModelStoreContainer">
           <EntitySet Name="AssignToSingleTasbeeh" EntityType="Self.AssignToSingleTasbeeh" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Chaintasbeehdeatiles" EntityType="Self.Chaintasbeehdeatiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Groups" EntityType="Self.Groups" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GroupTasbeeh" EntityType="Self.GroupTasbeeh" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="GroupUsers" EntityType="Self.GroupUsers" Schema="dbo" store:Type="Tables" />
@@ -181,7 +187,6 @@
           <EntitySet Name="Tasbeeh" EntityType="Self.Tasbeeh" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tasbeeh_Detailes" EntityType="Self.Tasbeeh_Detailes" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Wazifa" EntityType="Self.Wazifa" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="wazifa_Deatiles" EntityType="Self.wazifa_Deatiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="wazifa_text" EntityType="Self.wazifa_text" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
@@ -190,44 +195,24 @@
     <edmx:ConceptualModels>
       <Schema Namespace="DTWFModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="DTWFEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Groups" EntityType="DTWFModel.Groups" />
-          <EntitySet Name="AssignToSingleTasbeeh" EntityType="DTWFModel.AssignToSingleTasbeeh" />
           <EntitySet Name="Notification" EntityType="DTWFModel.Notification" />
           <EntitySet Name="Quran_Tasbeeh" EntityType="DTWFModel.Quran_Tasbeeh" />
           <EntitySet Name="Request" EntityType="DTWFModel.Request" />
-          <EntitySet Name="SingleTasbeeh" EntityType="DTWFModel.SingleTasbeeh" />
-          <EntitySet Name="Tasbeeh" EntityType="DTWFModel.Tasbeeh" />
           <EntitySet Name="Tasbeeh_Detailes" EntityType="DTWFModel.Tasbeeh_Detailes" />
           <EntitySet Name="groupusertasbeehdeatiles" EntityType="DTWFModel.groupusertasbeehdeatiles" />
           <EntitySet Name="GroupUsers" EntityType="DTWFModel.GroupUsers" />
           <EntitySet Name="GroupTasbeeh" EntityType="DTWFModel.GroupTasbeeh" />
           <EntitySet Name="quran_text" EntityType="DTWFModel.quran_text" />
           <EntitySet Name="Sura" EntityType="DTWFModel.Sura" />
-          <EntitySet Name="Wazifa" EntityType="DTWFModel.Wazifa" />
           <EntitySet Name="wazifa_Deatiles" EntityType="DTWFModel.wazifa_Deatiles" />
           <EntitySet Name="Users" EntityType="DTWFModel.Users" />
           <EntitySet Name="wazifa_text" EntityType="DTWFModel.wazifa_text" />
+          <EntitySet Name="Groups" EntityType="DTWFModel.Groups" />
+          <EntitySet Name="SingleTasbeeh" EntityType="DTWFModel.SingleTasbeeh" />
+          <EntitySet Name="Tasbeeh" EntityType="DTWFModel.Tasbeeh" />
+          <EntitySet Name="Chaintasbeehdeatiles" EntityType="DTWFModel.Chaintasbeehdeatiles" />
+          <EntitySet Name="AssignToSingleTasbeeh" EntityType="DTWFModel.AssignToSingleTasbeeh" />
         </EntityContainer>
-        <EntityType Name="Groups">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Group_Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Admin_id" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="AssignToSingleTasbeeh">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="SingleTasbeeh_id" Type="Int32" Nullable="false" />
-          <Property Name="Tasbeeh_id" Type="Int32" Nullable="false" />
-          <Property Name="Goal" Type="Int32" Nullable="false" />
-          <Property Name="Achieved" Type="Int32" Nullable="false" />
-          <Property Name="StartDate" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="EndDate" Type="DateTime" Precision="0" />
-        </EntityType>
         <EntityType Name="Notification">
           <Key>
             <PropertyRef Name="ID" />
@@ -261,22 +246,6 @@
           <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="Send_at" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Accept_at" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="SingleTasbeeh">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="User_id" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Tasbeeh">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Tasbeeh_Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="User_id" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Tasbeeh_Detailes">
           <Key>
@@ -335,14 +304,6 @@
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="sura_name" Type="String" MaxLength="60" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Wazifa">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Wazifa_Title" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
-          <Property Name="User_id" Type="Int32" Nullable="false" />
-        </EntityType>
         <EntityType Name="wazifa_Deatiles">
           <Key>
             <PropertyRef Name="id" />
@@ -369,34 +330,61 @@
           <Property Name="text" Type="String" MaxLength="60" FixedLength="false" Unicode="true" />
           <Property Name="count" Type="Int32" />
         </EntityType>
+        <EntityType Name="Groups">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Group_Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Admin_id" Type="Int32" Nullable="false" />
+          <Property Name="Flag" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="SingleTasbeeh">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="User_id" Type="Int32" Nullable="false" />
+          <Property Name="Flag" Type="Boolean" />
+        </EntityType>
+        <EntityType Name="Tasbeeh">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Tasbeeh_Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="User_id" Type="Int32" Nullable="false" />
+          <Property Name="Flag" Type="Boolean" />
+          <Property Name="Type" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Chaintasbeehdeatiles">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Tasbeeh_id" Type="Int32" />
+          <Property Name="Existing_Tasbeehid" Type="Int32" />
+        </EntityType>
+        <EntityType Name="AssignToSingleTasbeeh">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SingleTasbeeh_id" Type="Int32" Nullable="false" />
+          <Property Name="Tasbeeh_id" Type="Int32" Nullable="false" />
+          <Property Name="Goal" Type="Int32" Nullable="false" />
+          <Property Name="Achieved" Type="Int32" Nullable="false" />
+          <Property Name="status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Startdate" Type="DateTime" Precision="3" />
+          <Property Name="Enddate" Type="DateTime" Precision="3" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="DTWFModelStoreContainer" CdmEntityContainer="DTWFEntities">
-          <EntitySetMapping Name="Groups">
-            <EntityTypeMapping TypeName="DTWFModel.Groups">
-              <MappingFragment StoreEntitySet="Groups">
-                <ScalarProperty Name="Admin_id" ColumnName="Admin_id" />
-                <ScalarProperty Name="Group_Title" ColumnName="Group_Title" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="AssignToSingleTasbeeh">
-            <EntityTypeMapping TypeName="DTWFModel.AssignToSingleTasbeeh">
-              <MappingFragment StoreEntitySet="AssignToSingleTasbeeh">
-                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
-                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
-                <ScalarProperty Name="Achieved" ColumnName="Achieved" />
-                <ScalarProperty Name="Goal" ColumnName="Goal" />
-                <ScalarProperty Name="Tasbeeh_id" ColumnName="Tasbeeh_id" />
-                <ScalarProperty Name="SingleTasbeeh_id" ColumnName="SingleTasbeeh_id" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Notification">
             <EntityTypeMapping TypeName="DTWFModel.Notification">
               <MappingFragment StoreEntitySet="Notification">
@@ -430,24 +418,6 @@
                 <ScalarProperty Name="Receiver_id" ColumnName="Receiver_id" />
                 <ScalarProperty Name="Sender_id" ColumnName="Sender_id" />
                 <ScalarProperty Name="Tasbeeh_Id" ColumnName="Tasbeeh_Id" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="SingleTasbeeh">
-            <EntityTypeMapping TypeName="DTWFModel.SingleTasbeeh">
-              <MappingFragment StoreEntitySet="SingleTasbeeh">
-                <ScalarProperty Name="User_id" ColumnName="User_id" />
-                <ScalarProperty Name="Title" ColumnName="Title" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Tasbeeh">
-            <EntityTypeMapping TypeName="DTWFModel.Tasbeeh">
-              <MappingFragment StoreEntitySet="Tasbeeh">
-                <ScalarProperty Name="User_id" ColumnName="User_id" />
-                <ScalarProperty Name="Tasbeeh_Title" ColumnName="Tasbeeh_Title" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -515,15 +485,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Wazifa">
-            <EntityTypeMapping TypeName="DTWFModel.Wazifa">
-              <MappingFragment StoreEntitySet="Wazifa">
-                <ScalarProperty Name="User_id" ColumnName="User_id" />
-                <ScalarProperty Name="Wazifa_Title" ColumnName="Wazifa_Title" />
-                <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="wazifa_Deatiles">
             <EntityTypeMapping TypeName="DTWFModel.wazifa_Deatiles">
               <MappingFragment StoreEntitySet="wazifa_Deatiles">
@@ -550,6 +511,60 @@
                 <ScalarProperty Name="count" ColumnName="count" />
                 <ScalarProperty Name="text" ColumnName="text" />
                 <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Groups">
+            <EntityTypeMapping TypeName="DTWFModel.Groups">
+              <MappingFragment StoreEntitySet="Groups">
+                <ScalarProperty Name="Flag" ColumnName="Flag" />
+                <ScalarProperty Name="Admin_id" ColumnName="Admin_id" />
+                <ScalarProperty Name="Group_Title" ColumnName="Group_Title" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SingleTasbeeh">
+            <EntityTypeMapping TypeName="DTWFModel.SingleTasbeeh">
+              <MappingFragment StoreEntitySet="SingleTasbeeh">
+                <ScalarProperty Name="Flag" ColumnName="Flag" />
+                <ScalarProperty Name="User_id" ColumnName="User_id" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tasbeeh">
+            <EntityTypeMapping TypeName="DTWFModel.Tasbeeh">
+              <MappingFragment StoreEntitySet="Tasbeeh">
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Flag" ColumnName="Flag" />
+                <ScalarProperty Name="User_id" ColumnName="User_id" />
+                <ScalarProperty Name="Tasbeeh_Title" ColumnName="Tasbeeh_Title" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Chaintasbeehdeatiles">
+            <EntityTypeMapping TypeName="DTWFModel.Chaintasbeehdeatiles">
+              <MappingFragment StoreEntitySet="Chaintasbeehdeatiles">
+                <ScalarProperty Name="Existing_Tasbeehid" ColumnName="Existing_Tasbeehid" />
+                <ScalarProperty Name="Tasbeeh_id" ColumnName="Tasbeeh_id" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AssignToSingleTasbeeh">
+            <EntityTypeMapping TypeName="DTWFModel.AssignToSingleTasbeeh">
+              <MappingFragment StoreEntitySet="AssignToSingleTasbeeh">
+                <ScalarProperty Name="Enddate" ColumnName="Enddate" />
+                <ScalarProperty Name="Startdate" ColumnName="Startdate" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="Achieved" ColumnName="Achieved" />
+                <ScalarProperty Name="Goal" ColumnName="Goal" />
+                <ScalarProperty Name="Tasbeeh_id" ColumnName="Tasbeeh_id" />
+                <ScalarProperty Name="SingleTasbeeh_id" ColumnName="SingleTasbeeh_id" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

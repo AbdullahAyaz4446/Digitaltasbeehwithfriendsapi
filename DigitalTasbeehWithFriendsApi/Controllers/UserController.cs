@@ -96,7 +96,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                U.Status = "Offline";
+                U.Status = "unavalible";
                 Db.Users.Add(U);
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "SignUp Succesfully");
@@ -114,11 +114,11 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
 
             try
             {
-                var User = Db.Users.Where(a => a.Email == email && a.Password == password).FirstOrDefault();
+                var User = Db.Users.Where(a => a.Email.ToLower() == email.ToLower() && a.Password == password).FirstOrDefault();
                 if (User == null) {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "User NOt Found");
                 }
-                User.Status = "Online";
+                User.Status = "avalible";
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, User);
 
@@ -169,7 +169,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 }
                 user.Username=U.Username;
                 user.Password = U.Password;
-                user.Status = U.Status;
+                user.Status = user.Status;
                 user.Email = U.Email;
                 Db.SaveChanges();
 
@@ -191,11 +191,11 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "User not found");
                 }
-                user.Status = "Online";
+                user.Status = "avalible";
                 Db.SaveChanges();
               
 
-                return Request.CreateResponse(HttpStatusCode.OK, "Online");
+                return Request.CreateResponse(HttpStatusCode.OK, "avalible");
 
             }
             catch (Exception ex)
@@ -216,11 +216,11 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "User not found");
                 }
-                user.Status = "Offline";
+                user.Status = "unavalible";
                 Db.SaveChanges();
 
 
-                return Request.CreateResponse(HttpStatusCode.OK, "Offline");
+                return Request.CreateResponse(HttpStatusCode.OK, "unavalible");
 
             }
             catch (Exception ex)
@@ -301,7 +301,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
        gu, 
        g
    })
-.Where(w => w.gu.Members_id == memberId)
+.Where(w => w.gu.Members_id == memberId&&w.g.Flag==false)  // add group flag
 .Select(x => new
 {
     Groupid=x.g.ID,
@@ -332,7 +332,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             {
 
                 var groupuserid = Db.GroupUsers
-                    .Where(gu => gu.Members_id == userId)
+                    .Where(gu => gu.Members_id == userId&&gu.Group_id== groupId)
                     .Select(gu => gu.ID)
                     .FirstOrDefault();
 
@@ -362,7 +362,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Group = gt.Group,
                         GroupUsers = gu
                     })
-                    .Where(res => res.groupusertasbeehdeatiles.Group_user_id == groupuserid)
+                    .Where(res => res.groupusertasbeehdeatiles.Group_user_id == groupuserid&&res.Group.ID==res.GroupUsers.Group_id)
                     .Join(Db.Users, g => g.GroupUsers.Members_id, u => u.ID, (g, u) => new
                     {
                         GroupTasbeeh = g.GroupTasbeeh,
@@ -378,7 +378,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Username = res.users.Username,
                         Goal = res.groupusertasbeehdeatiles.Assign_count,
                         Current = res.groupusertasbeehdeatiles.Current_count,
-                        deadline = res.GroupTasbeeh.End_date 
+                        deadline = res.GroupTasbeeh.End_date
                     })
                     .FirstOrDefault();
 
@@ -405,7 +405,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             try
             {
                 var groupuserid = Db.GroupUsers
-                .Where(gu => gu.Members_id == userid)
+                .Where(gu => gu.Members_id == userid&&gu.Group_id== groupid)
                 .Select(gu => gu.ID)
                 .FirstOrDefault();
 
@@ -520,15 +520,13 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     Group = g.Group,
                     Groupuser = g.Groupuser,
                     User = u
-                }).Where(d => d.Request.Status == "Pending" && d.Request.Receiver_id == userid)
+                }).Where(d => d.Request.Status == "Pending" && d.Request.Receiver_id == userid&&d.Group.Flag==false)
                 .Select(data => new
                 {
                     id = data.Request.ID,
                     GroupTitle = data.Group.Group_Title,
                     Count = data.Request.Assigned_count,
-                    Tasbeehname = Db.Tasbeeh.Any(a => a.ID == data.Grouptasbeeh.Tasbeeh_id)
-    ? Db.Tasbeeh.Where(a => a.ID == data.Grouptasbeeh.Tasbeeh_id).Select(a => new { Title = a.Tasbeeh_Title, Id = a.ID }).FirstOrDefault()
-    : Db.Wazifa.Where(a => a.id == data.Grouptasbeeh.Tasbeeh_id).Select(a => new { Title = a.Wazifa_Title, Id = a.id }).FirstOrDefault(),
+                    Tasbeehname =Db.Tasbeeh.Where(a => a.ID == data.Grouptasbeeh.Tasbeeh_id).Select(a => new { Title = a.Tasbeeh_Title, Id = a.ID }).FirstOrDefault(),
     })
     .Distinct()
     .ToList();
@@ -555,7 +553,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 var groupmembers = Db.GroupUsers
                    .Where(g => g.Group_id == groupid && g.Members_id != userid)
                    .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
-                   .Where(member => member.u.Status == "Online")
+                   .Where(member => member.u.Status == "avalible")
                    .ToList();
                 if (groupuser == null) {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
@@ -596,24 +594,6 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-        // Get All Wazifa function
-        [HttpGet]
-        public HttpResponseMessage Allwazifa(int id)
-        {
-            try
-            {
-                var data = Db.Wazifa.Where(a => a.User_id == id).ToList();
-                if (data == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
-                }
-                return Request.CreateResponse(HttpStatusCode.OK, data);
-
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+       
     }
 }

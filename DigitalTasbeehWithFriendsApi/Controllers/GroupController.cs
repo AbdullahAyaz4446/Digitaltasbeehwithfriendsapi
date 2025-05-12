@@ -19,6 +19,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
+                G.Flag = false;
                 Db.Groups.Add(G);    
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK,G);
@@ -73,29 +74,21 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             }
         }
         ////Delete Group Function
-        //[HttpGet]
-        //public HttpResponseMessage Deletegroup(int id)
-        //{
-        //    try
-        //    {
-        //        var group = Db.Groups.Where(a => a.ID == id).FirstOrDefault();
-        //        if (group == null)
-        //        {
-        //            return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
-        //        }
-        //        var groupusers = Db.GroupUsers.Where(a => a.Group_id == id).ToList();
-        //        var grouptasbeeh = Db.GroupTasbeeh.Where(a => a.Group_id == id).ToList();
-        //        var request = Db.Request.Where(a => a.Group_id == id).ToList();
-        //        //var groupusertasbeehdeatiles = Db.
-        //        foreach (var groupuser in groupusers)
-        //        {
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-        //    }
-        //}
+        [HttpGet]
+        public HttpResponseMessage Deletegroup(int id)
+        {
+            try
+            {
+                var data = Db.Groups.Where(g => g.ID == id).FirstOrDefault();
+                data.Flag = true;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "Delete Succesfully");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
         // Add Members In Group Function
         [HttpPost]
         public HttpResponseMessage GroupMembers(List<GroupUsers> Gu)
@@ -159,7 +152,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             }
         }
         //Tasbeeh Achived Function To Post Achived count Function
-        [HttpPost]
+        [HttpGet]
         public HttpResponseMessage IncremnetInTasbeeh(int groupid)
         {
             try
@@ -209,12 +202,12 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
           .Select(gt =>
           {
               var tasbeeh = Db.Tasbeeh.FirstOrDefault(t => t.ID == gt.Tasbeeh_id);
-              var wazifa = Db.Wazifa.FirstOrDefault(w => w.id == gt.Tasbeeh_id);
+            
 
               return new
               {
                   id=gt.ID,
-                  title = tasbeeh != null ? tasbeeh.Tasbeeh_Title : (wazifa != null ? wazifa.Wazifa_Title : "N/A"),
+                  title = tasbeeh.Tasbeeh_Title,
                   Goal = gt.Goal,
                   Achieved = gt.Achieved,
                   deadline = gt.End_date,

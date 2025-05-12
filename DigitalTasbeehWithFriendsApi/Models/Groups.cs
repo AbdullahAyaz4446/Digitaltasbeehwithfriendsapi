@@ -17,5 +17,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public int ID { get; set; }
         public string Group_Title { get; set; }
         public int Admin_id { get; set; }
+        public Nullable<bool> Flag { get; set; }
     }
 }
