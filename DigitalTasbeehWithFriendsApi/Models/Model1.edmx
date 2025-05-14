@@ -14,7 +14,6 @@
           <Property Name="Tasbeeh_id" Type="int" Nullable="false" />
           <Property Name="Goal" Type="int" Nullable="false" />
           <Property Name="Achieved" Type="int" Nullable="false" />
-          <Property Name="status" Type="varchar" MaxLength="50" />
           <Property Name="Startdate" Type="datetime" />
           <Property Name="Enddate" Type="datetime" />
         </EntityType>
@@ -46,7 +45,6 @@
           <Property Name="Achieved" Type="int" Nullable="false" />
           <Property Name="Start_date" Type="datetime" Nullable="false" />
           <Property Name="End_date" Type="datetime" />
-          <Property Name="Status" Type="varchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="GroupUsers">
           <Key>
@@ -201,7 +199,6 @@
           <EntitySet Name="Tasbeeh_Detailes" EntityType="DTWFModel.Tasbeeh_Detailes" />
           <EntitySet Name="groupusertasbeehdeatiles" EntityType="DTWFModel.groupusertasbeehdeatiles" />
           <EntitySet Name="GroupUsers" EntityType="DTWFModel.GroupUsers" />
-          <EntitySet Name="GroupTasbeeh" EntityType="DTWFModel.GroupTasbeeh" />
           <EntitySet Name="quran_text" EntityType="DTWFModel.quran_text" />
           <EntitySet Name="Sura" EntityType="DTWFModel.Sura" />
           <EntitySet Name="wazifa_Deatiles" EntityType="DTWFModel.wazifa_Deatiles" />
@@ -212,6 +209,7 @@
           <EntitySet Name="Tasbeeh" EntityType="DTWFModel.Tasbeeh" />
           <EntitySet Name="Chaintasbeehdeatiles" EntityType="DTWFModel.Chaintasbeehdeatiles" />
           <EntitySet Name="AssignToSingleTasbeeh" EntityType="DTWFModel.AssignToSingleTasbeeh" />
+          <EntitySet Name="GroupTasbeeh" EntityType="DTWFModel.GroupTasbeeh" />
         </EntityContainer>
         <EntityType Name="Notification">
           <Key>
@@ -274,19 +272,6 @@
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Group_id" Type="Int32" Nullable="false" />
           <Property Name="Members_id" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="GroupTasbeeh">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Group_id" Type="Int32" Nullable="false" />
-          <Property Name="Tasbeeh_id" Type="Int32" Nullable="false" />
-          <Property Name="Goal" Type="Int32" Nullable="false" />
-          <Property Name="Achieved" Type="Int32" Nullable="false" />
-          <Property Name="Start_date" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="End_date" Type="DateTime" Precision="3" />
-          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="quran_text">
           <Key>
@@ -375,9 +360,20 @@
           <Property Name="Tasbeeh_id" Type="Int32" Nullable="false" />
           <Property Name="Goal" Type="Int32" Nullable="false" />
           <Property Name="Achieved" Type="Int32" Nullable="false" />
-          <Property Name="status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Startdate" Type="DateTime" Precision="3" />
           <Property Name="Enddate" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="GroupTasbeeh">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Group_id" Type="Int32" Nullable="false" />
+          <Property Name="Tasbeeh_id" Type="Int32" Nullable="false" />
+          <Property Name="Goal" Type="Int32" Nullable="false" />
+          <Property Name="Achieved" Type="Int32" Nullable="false" />
+          <Property Name="Start_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="End_date" Type="DateTime" Precision="3" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -448,20 +444,6 @@
             <EntityTypeMapping TypeName="DTWFModel.GroupUsers">
               <MappingFragment StoreEntitySet="GroupUsers">
                 <ScalarProperty Name="Members_id" ColumnName="Members_id" />
-                <ScalarProperty Name="Group_id" ColumnName="Group_id" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="GroupTasbeeh">
-            <EntityTypeMapping TypeName="DTWFModel.GroupTasbeeh">
-              <MappingFragment StoreEntitySet="GroupTasbeeh">
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="End_date" ColumnName="End_date" />
-                <ScalarProperty Name="Start_date" ColumnName="Start_date" />
-                <ScalarProperty Name="Achieved" ColumnName="Achieved" />
-                <ScalarProperty Name="Goal" ColumnName="Goal" />
-                <ScalarProperty Name="Tasbeeh_id" ColumnName="Tasbeeh_id" />
                 <ScalarProperty Name="Group_id" ColumnName="Group_id" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
@@ -559,11 +541,23 @@
               <MappingFragment StoreEntitySet="AssignToSingleTasbeeh">
                 <ScalarProperty Name="Enddate" ColumnName="Enddate" />
                 <ScalarProperty Name="Startdate" ColumnName="Startdate" />
-                <ScalarProperty Name="status" ColumnName="status" />
                 <ScalarProperty Name="Achieved" ColumnName="Achieved" />
                 <ScalarProperty Name="Goal" ColumnName="Goal" />
                 <ScalarProperty Name="Tasbeeh_id" ColumnName="Tasbeeh_id" />
                 <ScalarProperty Name="SingleTasbeeh_id" ColumnName="SingleTasbeeh_id" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="GroupTasbeeh">
+            <EntityTypeMapping TypeName="DTWFModel.GroupTasbeeh">
+              <MappingFragment StoreEntitySet="GroupTasbeeh">
+                <ScalarProperty Name="End_date" ColumnName="End_date" />
+                <ScalarProperty Name="Start_date" ColumnName="Start_date" />
+                <ScalarProperty Name="Achieved" ColumnName="Achieved" />
+                <ScalarProperty Name="Goal" ColumnName="Goal" />
+                <ScalarProperty Name="Tasbeeh_id" ColumnName="Tasbeeh_id" />
+                <ScalarProperty Name="Group_id" ColumnName="Group_id" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

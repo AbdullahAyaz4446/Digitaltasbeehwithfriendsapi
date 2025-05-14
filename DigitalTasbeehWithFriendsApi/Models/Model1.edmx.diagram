@@ -11,7 +11,6 @@
         <EntityTypeShape EntityType="DTWFModel.Tasbeeh_Detailes" Width="1.5" PointX="7.75" PointY="6.75" />
         <EntityTypeShape EntityType="DTWFModel.groupusertasbeehdeatiles" Width="1.5" PointX="7.375" PointY="9.75" />
         <EntityTypeShape EntityType="DTWFModel.GroupUsers" Width="1.5" PointX="9.375" PointY="0.75" />
-        <EntityTypeShape EntityType="DTWFModel.GroupTasbeeh" Width="1.5" PointX="0.75" PointY="3.75" />
         <EntityTypeShape EntityType="DTWFModel.quran_text" Width="1.5" PointX="9.625" PointY="9.75" />
         <EntityTypeShape EntityType="DTWFModel.Sura" Width="1.5" PointX="10.625" PointY="3.75" />
         <EntityTypeShape EntityType="DTWFModel.wazifa_Deatiles" Width="1.5" PointX="11.75" PointY="0.75" />
@@ -21,7 +20,8 @@
         <EntityTypeShape EntityType="DTWFModel.SingleTasbeeh" Width="1.5" PointX="10.375" PointY="6.75" />
         <EntityTypeShape EntityType="DTWFModel.Tasbeeh" Width="1.5" PointX="3.375" PointY="11.75" />
         <EntityTypeShape EntityType="DTWFModel.Chaintasbeehdeatiles" Width="1.5" PointX="12.375" PointY="6.75" />
-        <EntityTypeShape EntityType="DTWFModel.AssignToSingleTasbeeh" Width="1.5" PointX="3.375" PointY="3.75" />
+        <EntityTypeShape EntityType="DTWFModel.AssignToSingleTasbeeh" Width="1.5" PointX="0.75" PointY="3.75" />
+        <EntityTypeShape EntityType="DTWFModel.GroupTasbeeh" Width="1.5" PointX="2.75" PointY="3.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -326,7 +326,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         }
         //Your Tasbeh Progress Function
         [HttpGet]
-        public HttpResponseMessage TasbeehProgressLogedMember(int userId, int groupId)
+        public HttpResponseMessage TasbeehProgressLogedMember(int userId, int groupId,int tasbeehid)
         {
             try
             {
@@ -348,7 +348,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         GroupTasbeeh = gt,
                         groupusertasbeehdeatiles = gutd
                     })
-                    .Where(res => res.GroupTasbeeh.Group_id == groupId && res.GroupTasbeeh.Status == "Active")
+                    .Where(res => res.GroupTasbeeh.Group_id == groupId && res.GroupTasbeeh.ID == tasbeehid)
                     .Join(Db.Groups, gt => gt.GroupTasbeeh.Group_id, g => g.ID, (gt, g) => new
                     {
                         GroupTasbeeh = gt.GroupTasbeeh,
@@ -400,10 +400,10 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         }
         //Read Active Tasbeeh And Notification end if u achived your tasbeeh goal
         [HttpGet]
-        public HttpResponseMessage ReadTasbehandnotificationsend(int userid, int groupid)
+        public HttpResponseMessage ReadTasbehandnotificationsend(int userid, int groupid,int tasbeehid)
         {
             try
-            {
+            { 
                 var groupuserid = Db.GroupUsers
                 .Where(gu => gu.Members_id == userid&&gu.Group_id== groupid)
                 .Select(gu => gu.ID)
@@ -441,7 +441,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Group = g.Group,
                         GroupUsers = g.GroupUsers,
                         users = Db.Users.Where(a => a.ID == userid).FirstOrDefault()
-                    }).Where(a=>a.GroupTasbeeh.ID==a.groupusertasbeehdeatiles.Group_Tasbeeh_Id&& groupuserid == a.groupusertasbeehdeatiles.Group_user_id&&a.groupusertasbeehdeatiles.Group_Tasbeeh_Id==a.GroupTasbeeh.ID&&a.GroupTasbeeh.Status=="Active")
+                    }).Where(a=>a.GroupTasbeeh.ID==a.groupusertasbeehdeatiles.Group_Tasbeeh_Id&& groupuserid == a.groupusertasbeehdeatiles.Group_user_id&&a.groupusertasbeehdeatiles.Group_Tasbeeh_Id==a.GroupTasbeeh.ID&&a.GroupTasbeeh.ID==tasbeehid)
                     .Select(res => new
                     {
                         TasbeehID = res.GroupTasbeeh.ID,
@@ -458,7 +458,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
        
                 if (tasbeehProgress.Current == tasbeehProgress.Goal)
                 {
-                    var tasbeehid = tasbeehProgress.TasbeehID;
+                   
                     var data = Db.groupusertasbeehdeatiles.Where(a => a.Group_Tasbeeh_Id == tasbeehid && a.Group_user_id == groupuserid).FirstOrDefault();
                     data.Enddate = DateTime.Now;
 
@@ -480,7 +480,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 }
                 else
                 {
-                    var tasbeehid = tasbeehProgress.TasbeehID;
+                    
                     var data = Db.groupusertasbeehdeatiles.Where(a => a.Group_Tasbeeh_Id == tasbeehid && a.Group_user_id == groupuserid).FirstOrDefault();
                     data.Current_count = tasbeehProgress.Current + 1;
                     Db.SaveChanges();
@@ -529,6 +529,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     Tasbeehname =Db.Tasbeeh.Where(a => a.ID == data.Grouptasbeeh.Tasbeeh_id).Select(a => new { Title = a.Tasbeeh_Title, Id = a.ID }).FirstOrDefault(),
     })
     .Distinct()
+   .OrderByDescending(x => x.id)
     .ToList();
                 if (allrequest == null) 
                 {
@@ -549,7 +550,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             {
                 var adminid = Db.Groups.Where(a => a.ID == groupid).FirstOrDefault();
                 var groupuser = Db.GroupUsers.Where(a => a.Members_id == userid && a.Group_id == groupid).FirstOrDefault();
-                var activetasbeeh = Db.GroupTasbeeh.Where(a => a.Group_id == groupid && a.Status == "Active").FirstOrDefault();
+                var activetasbeeh = Db.GroupTasbeeh.Where(a => a.Group_id == groupid).FirstOrDefault();
                 var groupmembers = Db.GroupUsers
                    .Where(g => g.Group_id == groupid && g.Members_id != userid)
                    .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })

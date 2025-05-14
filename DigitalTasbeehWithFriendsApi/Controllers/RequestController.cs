@@ -69,7 +69,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 }
 
                 var tasbeehGoal = Db.GroupTasbeeh 
-                    .FirstOrDefault(a => a.Group_id == groupid && a.Status == "avalible");
+                    .FirstOrDefault(a => a.Group_id == groupid);
                 if (tasbeehGoal == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No active tasbeeh goal found for this group.");
@@ -100,7 +100,10 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         var gutd = new groupusertasbeehdeatiles
                         {
                             Group_Tasbeeh_Id = tasbeehGoal.ID,
-                            Group_user_id = memberId,
+                            Group_user_id = Db.GroupUsers
+                    .Where(a => a.Members_id == memberId&&a.Group_id==groupid)
+                    .Select(res => res.ID)
+                    .FirstOrDefault(),
                             Assign_count = assignedCount,
                             startdate = DateTime.Now,
                             Current_count = 0
@@ -127,7 +130,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 var adminGroup = Db.Groups.FirstOrDefault(g => g.ID == groupid);
 
                 var tasbeehgoal = Db.GroupTasbeeh
-                    .FirstOrDefault(a => a.Group_id == groupid && a.Status == "Active");
+                    .FirstOrDefault(a => a.Group_id == groupid);
                 var groupmembers = Db.GroupUsers
                     .Where(g => g.Group_id == groupid)
                     .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
@@ -332,7 +335,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                       GroupTasbeeh = gt,
                       GroupUserTasbeehDetails = gutd
                   })
-                  .Where(res => res.GroupTasbeeh.Group_id == groupid && res.GroupTasbeeh.Status == "Active")
+                  .Where(res => res.GroupTasbeeh.Group_id == groupid )
                   .Join(Db.GroupUsers, gt => gt.GroupUserTasbeehDetails.Group_user_id, gu => gu.ID, (gt, gu) => new
                   {
                       GroupTasbeeh = gt.GroupTasbeeh,

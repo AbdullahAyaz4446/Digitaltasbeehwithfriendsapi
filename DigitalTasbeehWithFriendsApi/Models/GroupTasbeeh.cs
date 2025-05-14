@@ -21,6 +21,5 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public int Achieved { get; set; }
         public System.DateTime Start_date { get; set; }
         public Nullable<System.DateTime> End_date { get; set; }
-        public string Status { get; set; }
     }
 }

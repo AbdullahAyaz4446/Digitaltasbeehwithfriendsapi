@@ -109,8 +109,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
   
         //Tasbeeh Progress and all group members Progress Function
         [HttpGet]
-        public HttpResponseMessage TasbeehProgressAndMembersProgress(int groupId)
-        {
+        public HttpResponseMessage TasbeehProgressAndMembersProgress(int groupId,int tasbeehid)
+        { 
             try
             {
 
@@ -121,7 +121,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         GroupTasbeeh = gt,
                         GroupUserTasbeehDetails = gutd
                     })
-                    .Where(res => res.GroupTasbeeh.Group_id == groupId && res.GroupTasbeeh.Status == "Active")
+                    .Where(res => res.GroupTasbeeh.Group_id == groupId && res.GroupTasbeeh.ID == tasbeehid)
                     .Join(Db.GroupUsers, gt => gt.GroupUserTasbeehDetails.Group_user_id, gu => gu.ID, (gt, gu) => new
                     {
                         GroupTasbeeh = gt.GroupTasbeeh,
@@ -153,7 +153,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         }
         //Tasbeeh Achived Function To Post Achived count Function
         [HttpGet]
-        public HttpResponseMessage IncremnetInTasbeeh(int groupid)
+        public HttpResponseMessage IncremnetInTasbeeh(int groupid,int tasbeehid)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                       GroupTasbeeh = gt,
                       GroupUserTasbeehDetails = gutd
                   })
-                  .Where(res => res.GroupTasbeeh.Group_id == groupid && res.GroupTasbeeh.Status == "Active")
+                  .Where(res => res.GroupTasbeeh.Group_id == groupid && res.GroupTasbeeh.ID == tasbeehid)
                   .Join(Db.GroupUsers, gt => gt.GroupUserTasbeehDetails.Group_user_id, gu => gu.ID, (gt, gu) => new
                   {
                       GroupTasbeeh = gt.GroupTasbeeh,
@@ -178,7 +178,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                   .ToList();
                 var totalcount = tasbeehProgress.Sum(t=>t.CurrentCount);
                 //var grouptasbeehID = tasbeehProgress.Select(t => t.GrouptasbeehId).Distinct().ToList();
-                var GroupTasbeehdata = Db.GroupTasbeeh.Where(gt => gt.Group_id == groupid && gt.Status == "Active").FirstOrDefault();
+                var GroupTasbeehdata = Db.GroupTasbeeh.Where(gt => gt.Group_id == groupid && gt.ID == tasbeehid).FirstOrDefault();
                 GroupTasbeehdata.Achieved = totalcount ?? 0;
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "Tasbeh Progress Updated Succesfully");
@@ -211,7 +211,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                   Goal = gt.Goal,
                   Achieved = gt.Achieved,
                   deadline = gt.End_date,
-                  status = gt.Status
+                 
               };
           }).ToList();
                 return Request.CreateResponse(HttpStatusCode.OK, data);

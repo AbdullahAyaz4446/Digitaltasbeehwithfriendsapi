@@ -84,7 +84,17 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id).ToList();
+                //var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id).ToList();
+                var data = Db.Tasbeeh.Join(Db.AssignToSingleTasbeeh, t => t.ID, ast => ast.Tasbeeh_id, (t, ast) => new { Tasbeeh = t, Asigntasbeehdata = ast }).Where(result => result.Asigntasbeehdata.SingleTasbeeh_id == id).Select(res => new
+                {
+                    ID=res.Asigntasbeehdata.ID,
+                    title = res.Tasbeeh.Tasbeeh_Title,
+                    Goal = res.Asigntasbeehdata.Goal,
+                    Achieved = res.Asigntasbeehdata.Achieved,
+                    Enddate=res.Asigntasbeehdata.Enddate,
+                   
+
+                }).ToList();
                 if (data == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No Data Found");
@@ -99,17 +109,17 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         }
         //Read Single Tasbeeh
         [HttpGet]
-        public HttpResponseMessage Readsingletasbeeh(int id)
+        public HttpResponseMessage Readsingletasbeeh(int id, int tasbeehid)
         {
             try
             {
-                var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id && a.status == "Active").FirstOrDefault();
+                var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id && a.ID == tasbeehid).FirstOrDefault();
                 if (data.Goal == data.Achieved)
                 {
                     return Request.CreateResponse(HttpStatusCode.OK,"Completed");
                 }
                 else
-                { 
+                {  
                     data.Achieved = data.Achieved + 1;
                     Db.SaveChanges();
                     return Request.CreateResponse(HttpStatusCode.OK,data);
@@ -126,11 +136,11 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         }
         //Get Single Tasbeeh data
         [HttpGet]
-        public HttpResponseMessage Getsingletasbeehdata(int id)
+        public HttpResponseMessage Getsingletasbeehdata(int id, int tasbeehid)
         {
             try
             {
-                var data=Db.AssignToSingleTasbeeh.Where(a=>a.SingleTasbeeh_id==id&&a.status=="Active").FirstOrDefault();
+                var data=Db.AssignToSingleTasbeeh.Where(a=>a.SingleTasbeeh_id==id&&a.ID==tasbeehid).FirstOrDefault();
                 if (data == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
@@ -148,15 +158,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var previoustasbeehList = Db.AssignToSingleTasbeeh
-                    .Where(a => a.status == "Active" && a.SingleTasbeeh_id == td.SingleTasbeeh_id)
-                    .ToList();
-
-                foreach (var tasbeeh in previoustasbeehList)
-                {
-                    tasbeeh.status = "Unactive";
-                }
-                td.status = "Active";
+               
                 td.Startdate = DateTime.Now;
                 Db.AssignToSingleTasbeeh.Add(td);
                 Db.SaveChanges();
@@ -168,6 +170,36 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+        //[HttpGet]
+        //public HttpResponseMessage Resumetasbeeh(int id)
+        //{
+        //    try
+        //    {
+        //        var selectedTasbeeh = Db.AssignToSingleTasbeeh.FirstOrDefault(a => a.ID == id);
+        //        if (selectedTasbeeh == null)
+        //        {
+        //            return Request.CreateResponse(HttpStatusCode.NotFound, "Tasbeeh not found.");
+        //        }
+        //        var allsingletasbeeh = Db.AssignToSingleTasbeeh
+        //            .Where(a=>a.SingleTasbeeh_id == selectedTasbeeh.SingleTasbeeh_id && a.ID != id)
+        //            .ToList();
+
+        //        foreach (var tasbeeh in allsingletasbeeh)
+        //        {
+        //            tasbeeh.status = "Unactive";
+        //        }
+        //        selectedTasbeeh.status = "Active";
+
+        //        Db.SaveChanges();
+
+        //        return Request.CreateResponse(HttpStatusCode.OK, "Successfully Activated");
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        //    }
+        //}
 
     }
 }

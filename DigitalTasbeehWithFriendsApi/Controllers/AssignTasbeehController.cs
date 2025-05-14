@@ -18,19 +18,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var previoustasbeehList = Db.GroupTasbeeh
-                    .Where(a => a.Status == "Active" && a.Group_id == Gt.Group_id)
-                    .ToList();
-
-
-                foreach (var tasbeeh in previoustasbeehList)
-                {
-                    tasbeeh.Status = "Unactive";
-                }
-
-
+              
                 Gt.Start_date = DateTime.Now;
-                Gt.Status = "Active";
                 Db.GroupTasbeeh.Add(Gt);
 
 
@@ -45,53 +34,53 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             }
         }
         //Wannt Stop Active Tasbeeh Function
-        [HttpGet]
-        public HttpResponseMessage StopTasbeeh(int id)
-        {
-            try
-            {
-                var data = Db.GroupTasbeeh.Where(a => a.ID == id).FirstOrDefault();
-                data.Status = "Unactive";
-                Db.SaveChanges();
-                return Request.CreateResponse(HttpStatusCode.OK, "Succesfully Unactive");
+        //[HttpGet]
+        //public HttpResponseMessage StopTasbeeh(int id)
+        //{
+        //    try
+        //    {
+        //        var data = Db.GroupTasbeeh.Where(a => a.ID == id).FirstOrDefault();
+        //        data.Status = "Unactive";
+        //        Db.SaveChanges();
+        //        return Request.CreateResponse(HttpStatusCode.OK, "Succesfully Unactive");
 
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
 
-            }
-        }
+        //    }
+        //}
         //Want To Resume Stop Tasbeeh Function
-        [HttpGet]
-        public HttpResponseMessage ActiveTasbeeh(int id)
-        {
-            try
-            {
-                var selectedTasbeeh = Db.GroupTasbeeh.FirstOrDefault(a => a.ID == id);
-                if (selectedTasbeeh == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Tasbeeh not found.");
-                }
-                var allGroupTasbeehs = Db.GroupTasbeeh
-                    .Where(gt => gt.Group_id == selectedTasbeeh.Group_id && gt.ID != id)
-                    .ToList();
+        //[HttpGet]
+        //public HttpResponseMessage ActiveTasbeeh(int id)
+        //{
+        //    try
+        //    {
+        //        var selectedTasbeeh = Db.GroupTasbeeh.FirstOrDefault(a => a.ID == id);
+        //        if (selectedTasbeeh == null)
+        //        {
+        //            return Request.CreateResponse(HttpStatusCode.NotFound, "Tasbeeh not found.");
+        //        }
+        //        var allGroupTasbeehs = Db.GroupTasbeeh
+        //            .Where(gt => gt.Group_id == selectedTasbeeh.Group_id && gt.ID != id)
+        //            .ToList();
 
-                foreach (var tasbeeh in allGroupTasbeehs)
-                {
-                    tasbeeh.Status = "Unactive";
-                }
-                selectedTasbeeh.Status = "Active";
+        //        foreach (var tasbeeh in allGroupTasbeehs)
+        //        {
+        //            tasbeeh.Status = "Unactive"; 
+        //        }
+        //        selectedTasbeeh.Status = "Active";
 
-                Db.SaveChanges();
+        //        Db.SaveChanges();
 
-                return Request.CreateResponse(HttpStatusCode.OK, "Successfully Activated");
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+        //        return Request.CreateResponse(HttpStatusCode.OK, "Successfully Activated");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        //    }
+        //}
 
         //Update Tasbeeh in group Function
         [HttpGet]
