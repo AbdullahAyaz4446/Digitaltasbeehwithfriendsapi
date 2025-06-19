@@ -12,16 +12,18 @@ namespace DigitalTasbeehWithFriendsApi.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class AssignToSingleTasbeeh
+    public partial class leavegroupusertasbeehdeatiles
     {
         public int ID { get; set; }
-        public int SingleTasbeeh_id { get; set; }
-        public int Tasbeeh_id { get; set; }
-        public int Goal { get; set; }
-        public int Achieved { get; set; }
-        public Nullable<System.DateTime> Startdate { get; set; }
+        public Nullable<int> Group_Tasbeeh_id { get; set; }
+        public Nullable<int> Group_user_id { get; set; }
+        public Nullable<System.DateTime> startdate { get; set; }
         public Nullable<System.DateTime> Enddate { get; set; }
+        public Nullable<int> Assign_count { get; set; }
+        public Nullable<int> Current_count { get; set; }
         public Nullable<int> Flag { get; set; }
-        public Nullable<int> schedule { get; set; }
+        public string Message { get; set; }
+        public Nullable<int> Groupadminid { get; set; }
+        public Nullable<int> groupid { get; set; }
     }
 }

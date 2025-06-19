@@ -4,13 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Permissions;
 using System.Web.Http;
 using DigitalTasbeehWithFriendsApi.Models;
 namespace DigitalTasbeehWithFriendsApi.Controllers
 {
     public class SigleController : ApiController
     {
-        DTWFEntities Db = new DTWFEntities();
+         DTWFEntities Db = new DTWFEntities();
         [HttpPost]
         public HttpResponseMessage CreateSingletasbeeh(SingleTasbeeh t)
         {
@@ -26,7 +27,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-        [HttpPost]
+        [HttpPost] 
         public HttpResponseMessage SearchSingletasbeeh(String name)
         {
             try
@@ -50,7 +51,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             try
             {
                 var data = Db.SingleTasbeeh.Where(a => a.User_id == userid&&a.Flag==false).ToList();
-                if(data == null)
+                if (data == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No Signle Tasbeeh Found For Specfix Member");
 
@@ -84,15 +85,17 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                //var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id).ToList();
-                var data = Db.Tasbeeh.Join(Db.AssignToSingleTasbeeh, t => t.ID, ast => ast.Tasbeeh_id, (t, ast) => new { Tasbeeh = t, Asigntasbeehdata = ast }).Where(result => result.Asigntasbeehdata.SingleTasbeeh_id == id).Select(res => new
+               
+                var data = Db.Tasbeeh.Join(Db.AssignToSingleTasbeeh, t => t.ID, ast => ast.Tasbeeh_id, (t, ast) => new { Tasbeeh = t, Asigntasbeehdata = ast }).Where(result => result.Asigntasbeehdata.SingleTasbeeh_id == id&&result.Asigntasbeehdata.Flag!=3).Select(res => new
                 {
                     ID=res.Asigntasbeehdata.ID,
                     title = res.Tasbeeh.Tasbeeh_Title,
                     Goal = res.Asigntasbeehdata.Goal,
                     Achieved = res.Asigntasbeehdata.Achieved,
                     Enddate=res.Asigntasbeehdata.Enddate,
-                   
+                    Flag=res.Asigntasbeehdata.Flag, 
+                    tid=res.Tasbeeh.ID,
+                    day=res.Asigntasbeehdata.schedule,
 
                 }).ToList();
                 if (data == null)
@@ -116,6 +119,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id && a.ID == tasbeehid).FirstOrDefault();
                 if (data.Goal == data.Achieved)
                 {
+                    data.Flag = 2;
                     return Request.CreateResponse(HttpStatusCode.OK,"Completed");
                 }
                 else
@@ -137,7 +141,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         //Get Single Tasbeeh data
         [HttpGet]
         public HttpResponseMessage Getsingletasbeehdata(int id, int tasbeehid)
-        {
+         {
             try
             {
                 var data=Db.AssignToSingleTasbeeh.Where(a=>a.SingleTasbeeh_id==id&&a.ID==tasbeehid).FirstOrDefault();
@@ -158,7 +162,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-               
+                td.Flag = 0;
                 td.Startdate = DateTime.Now;
                 Db.AssignToSingleTasbeeh.Add(td);
                 Db.SaveChanges();
@@ -200,6 +204,70 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
         //    }
         //}
+
+        // Close Tasbeeh Function
+        [HttpGet]
+        public HttpResponseMessage Closetasbeeh(int id)
+        {
+            try
+            {
+                var data = Db.AssignToSingleTasbeeh.FirstOrDefault(a => a.ID == id);
+                data.Flag = 1;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "Tasbeeh Close");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+
+
+        }
+        //open tasbeeh
+        [HttpGet]
+        public HttpResponseMessage Opentasbeeh(int id)
+        {
+            try
+            {
+                var data = Db.AssignToSingleTasbeeh.FirstOrDefault(a => a.ID == id);
+                data.Flag = 0;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "Tasbeeh open");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        [HttpGet]
+        public HttpResponseMessage Reactivesingletasbeeh(int id, DateTime? enddate = null)
+        {
+            try
+            {
+                var data = Db.AssignToSingleTasbeeh.FirstOrDefault(a => a.ID == id);
+                data.Flag = 3;
+                var reactivetasbeeh = new AssignToSingleTasbeeh
+                {
+                    SingleTasbeeh_id = data.SingleTasbeeh_id,
+                    Tasbeeh_id = data.Tasbeeh_id,
+                    Goal = data.Goal,
+                    Achieved = 0,
+                    Startdate = DateTime.Now,
+                    Enddate = enddate ?? data.Enddate,
+                    Flag = 0
+
+                };
+                Db.AssignToSingleTasbeeh.Add(reactivetasbeeh);
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "Tasbeeh Reactived Succesfully");
+
+            }
+            catch(Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
 
     }
 }

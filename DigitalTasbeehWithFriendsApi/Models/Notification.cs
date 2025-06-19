@@ -15,7 +15,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
     public partial class Notification
     {
         public int ID { get; set; }
-        public int Sender_id { get; set; }
         public int Receiver_id { get; set; }
         public string Detail { get; set; }
     }

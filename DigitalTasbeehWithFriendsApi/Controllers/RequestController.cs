@@ -1,4 +1,5 @@
 ﻿using DigitalTasbeehWithFriendsApi.Models;
+using Microsoft.Ajax.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -57,8 +58,9 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 var form = HttpContext.Current.Request.Form;
 
                 int groupid = int.Parse(form["groupid"]); 
+                int tasbeehid = int.Parse(form["tasbeehid"]);
 
-               
+
                 List<int> id = JsonConvert.DeserializeObject<List<int>>(form["id"]);
                 List<int> count = JsonConvert.DeserializeObject<List<int>>(form["count"]);
 
@@ -68,8 +70,9 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Group not found.");
                 }
 
-                var tasbeehGoal = Db.GroupTasbeeh 
-                    .FirstOrDefault(a => a.Group_id == groupid);
+                var tasbeehGoal = Db.GroupTasbeeh
+               .FirstOrDefault(a => a.ID == tasbeehid && a.Flag == 0);
+
                 if (tasbeehGoal == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No active tasbeeh goal found for this group.");
@@ -106,7 +109,9 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     .FirstOrDefault(),
                             Assign_count = assignedCount,
                             startdate = DateTime.Now,
-                            Current_count = 0
+                            Current_count = 0,
+                            Flag=0
+                            
                         };
                         Db.groupusertasbeehdeatiles.Add(gutd);
                     }
@@ -123,18 +128,17 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
 
         //Tasbeeh Distribute Equally Send Request Function
         [HttpPost]
-        public HttpResponseMessage DistributeTasbeehEqually(int groupid)
+        public HttpResponseMessage DistributeTasbeehEqually(int groupid,int tasbeehid)
         {
             try
             {
                 var adminGroup = Db.Groups.FirstOrDefault(g => g.ID == groupid);
 
                 var tasbeehgoal = Db.GroupTasbeeh
-                    .FirstOrDefault(a => a.Group_id == groupid);
+                    .FirstOrDefault(a =>a.ID==tasbeehid&&a.Flag==0);
                 var groupmembers = Db.GroupUsers
                     .Where(g => g.Group_id == groupid)
                     .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
-                    .Where(member => member.u.Status == "avalible")
                     .ToList();
                 int count = groupmembers.Count;
                 if (count == 0)
@@ -175,7 +179,9 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                                 Group_user_id = member.gu.ID,
                                 Assign_count = assignCount + extraCount,
                                 startdate = DateTime.Now,
-                                Current_count = 0
+                                Current_count = 0,
+                                Flag=0
+                               
                             };
                             Db.groupusertasbeehdeatiles.Add(gutd);
                         }
@@ -207,7 +213,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                                 Group_user_id = member.gu.ID,
                                 Assign_count = assignCount,
                                 startdate = DateTime.Now,
-                                Current_count = 0
+                                Current_count = 0,
+                                Flag=0
                             };
                             Db.groupusertasbeehdeatiles.Add(gutd);
                         }
@@ -252,7 +259,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 data.Request.Status = "Accept";
                 data.Request.Accept_at = DateTime.Now;
 
-                var gutddata = Db.groupusertasbeehdeatiles.Where(a => a.Group_user_id == data.Groupuser.ID && a.Group_Tasbeeh_Id == data.Request.Tasbeeh_Id).FirstOrDefault();
+                var gutddata = Db.groupusertasbeehdeatiles.Where(a => a.Group_user_id == data.Groupuser.ID && a.Group_Tasbeeh_Id == data.Request.Tasbeeh_Id&&a.Flag==0).FirstOrDefault();
                 if(gutddata != null)
                 {
                     gutddata.Assign_count = gutddata.Assign_count + data.Request.Assigned_count;
@@ -265,7 +272,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     Group_user_id = data.Groupuser.ID,
                     Assign_count = data.Request.Assigned_count,
                     startdate=DateTime.Now,
-                    Current_count = 0
+                    Current_count = 0,
+                    Flag=0
                 };
                 Db.groupusertasbeehdeatiles.Add(gutd);
                 Db.SaveChanges();
@@ -291,7 +299,6 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 var groupmembers = Db.GroupUsers
                     .Where(g => g.Group_id == rejectrequest.Group_id&&g.Members_id!=rejectrequest.Receiver_id)
                     .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
-                    .Where(member => member.u.Status == "avalible")
                     .ToList();
                 var count = rejectrequest.Assigned_count;
                 var members = groupmembers.Count();
@@ -319,77 +326,83 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             }
         }
         //Notification Send If tasbeeh date End
-        [HttpPost]
-        public HttpResponseMessage TasbeehEndNotification(int groupid,DateTime t)
+        [HttpGet]
+        public HttpResponseMessage TasbeehEndNotification(int groupid)
         {
             try
             {
-                var adminid=Db.Groups.Where(a=>a.ID==groupid).Select(a=> new
+                var data = Db.GroupTasbeeh.Join(Db.Groups,
+                 gt => gt.Group_id,
+                 g => g.ID,
+                 (gt, g) => new
+                 {
+                     GroupTasbeeh = gt,
+                     Group = g
+                 })
+             .Join(Db.Tasbeeh,
+                 gt => gt.GroupTasbeeh.Tasbeeh_id,
+                 t => t.ID,
+                 (gt, t) => new
+                 {
+                     GroupTasbeeh = gt.GroupTasbeeh,
+                     Group = gt.Group,
+                     Tasbeeh = t
+                 }).Join(Db.Request,gt=>gt.GroupTasbeeh.ID, r => r.Tasbeeh_Id, (gt, r) => new
+                 {
+                     GroupTasbeeh = gt.GroupTasbeeh,
+                     Group = gt.Group,
+                     Tasbeeh = gt.Tasbeeh,
+                     Request = r
+                 }
+                 )
+             .Where(result => result.GroupTasbeeh.Flag == 0 && result.Group.ID == groupid&&result.Request.Group_id==result.Group.ID&&result.Request.Tasbeeh_Id==result.GroupTasbeeh.ID&&result.Request.Status=="Accept")
+             .Select(res => new
+             {
+                 Groupid = res.Group.ID,
+                 Grouptitle = res.Group.Group_Title,
+                 Adminid = res.Group.Admin_id,
+                 GroupTasbeehid = res.GroupTasbeeh.ID,
+                 Enddate = res.GroupTasbeeh.End_date,
+                 Tasbeehid = res.Tasbeeh.ID,
+                 Tasbeehname = res.Tasbeeh.Tasbeeh_Title,
+                  receiverid=res.Request.Receiver_id
+             }).ToList();
+
+                
+                var Nowdate = DateTime.Now.Date;
+                var tomorrowdate = DateTime.Now.AddDays(1).Date;
+                foreach (var chkdate in data)
                 {
-                    AdminId=a.Admin_id,
-                    Grouptitle=a.Group_Title
-                }).FirstOrDefault();
-                var tasbeeh = Db.groupusertasbeehdeatiles
-                  .Join(Db.GroupTasbeeh, gutd => gutd.Group_Tasbeeh_Id, gt => gt.ID, (gutd, gt) => new
-                  {
-                      GroupTasbeeh = gt,
-                      GroupUserTasbeehDetails = gutd
-                  })
-                  .Where(res => res.GroupTasbeeh.Group_id == groupid )
-                  .Join(Db.GroupUsers, gt => gt.GroupUserTasbeehDetails.Group_user_id, gu => gu.ID, (gt, gu) => new
-                  {
-                      GroupTasbeeh = gt.GroupTasbeeh,
-                      GroupUserTasbeehDetails = gt.GroupUserTasbeehDetails,
-                      GroupUser = gu
-                  })
-                  .Join(Db.Users, g => g.GroupUser.Members_id, u => u.ID, (g, u) => new
-                  {
-                      Enddate = g.GroupTasbeeh.End_date,
-                      Groupid = g.GroupUser.Group_id,
-                      TasbeehGoal = g.GroupTasbeeh.Goal,
-                      Achieved = g.GroupTasbeeh.Achieved,
-                      Username = u.Username,
-                      Status = u.Status,
-                      AssignCount = g.GroupUserTasbeehDetails.Assign_count,
-                      CurrentCount = g.GroupUserTasbeehDetails.Current_count,
-                      Userid=u.ID
-                  }).Where(res=>res.Status=="avalible")
-                  .ToList();
-                var enddate = tasbeeh.Select(a => a.Enddate).FirstOrDefault();
-                var tomorrowdate = t.AddDays(1);
-                var admin = adminid.AdminId;
-                if (enddate != null)
-                {
-                    foreach (var a in tasbeeh)
+                    var grouptasbeeh = Db.GroupTasbeeh.Where(a => a.ID == chkdate.GroupTasbeehid&&a.Flag==0).FirstOrDefault();
+                    var message = $"Tasbeeh '{chkdate.Tasbeehname}' in group '{chkdate.Grouptitle}' is ending tomorrow.";
+                    var message1 = $"Tasbeeh '{chkdate.Tasbeehname}' in group '{chkdate.Grouptitle}' is ending Today.";
+                    var chk = chkdate.Enddate.Value.Date;
+                    var tasbeehdate= chkdate.Enddate.Value.Date;
+                    if (chk == tomorrowdate)
                     {
-                        string Message = $"{adminid.Grouptitle} Active Tasbeeh Going To End Tomorrow";
-                        string Message2 = $"{adminid.Grouptitle} Active Tasbeeh Is End ";
-                        if (enddate == tomorrowdate)
+                        var notification = new Notification
                         {
-                            var no = new Notification
-                            {
-                                Sender_id = admin,
-                                Receiver_id = a.Userid,
-                                Detail = Message
+                            Receiver_id=chkdate.receiverid,
+                            Detail=message
+                        };
+                        Db.Notification.Add(notification);
+                        Db.SaveChanges();
 
-                            };
-                            Db.Notification.Add(no);
-                        }
-                        if (enddate == t)
-                        {
-                            var no = new Notification
-                            {
-                                Sender_id = admin,
-                                Receiver_id = a.Userid,
-                                Detail = Message2
-
-                            };
-                            Db.Notification.Add(no);
-                        }
                     }
-                    Db.SaveChanges();
+                    if (tasbeehdate == Nowdate)
+                    {
+                        var notification = new Notification
+                        {
+                            Receiver_id = chkdate.receiverid,
+                            Detail = message1
+                        };
+                        Db.Notification.Add(notification);
+                        grouptasbeeh.Flag = 2;
+                        Db.SaveChanges();
+
+                    }
                 }
-                return Request.CreateResponse(HttpStatusCode.BadRequest, "Notification Send Succesfully");
+                return Request.CreateResponse(HttpStatusCode.OK,"Succesfully Date chk");
             }
             catch (Exception ex)
             {
@@ -431,7 +444,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     GroupUser = gu.GroupUser,
                     Group = gu.Group,
                     User = u
-                }).Where(res => res.Group.ID == groupid && res.User.Status == "avalible").Select(res => new
+                }).Where(res => res.Group.ID == groupid).Select(res => new
                 {
                     Groupid = res.Group.ID,
                     GroupTitle = res.Group.Group_Title,
@@ -446,5 +459,165 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
             }
         }
+
+
+        //Reassign tasbeeh equally to all group members
+        [HttpGet]
+        public HttpResponseMessage reassigntasbehequally(int groupid,int Goal,int grouptasbeehid,int leaveid)
+        {
+            try
+            {
+
+
+                var adminGroup = Db.Groups.FirstOrDefault(g => g.ID == groupid);
+                var groupmembers = Db.GroupUsers
+                    .Where(g => g.Group_id == groupid)
+                    .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
+                    .ToList();
+                int count = groupmembers.Count;
+                if (count == 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "No avalible members found.");
+                }
+                int assignCount = Goal / count;
+                int assigncountreminder = Goal % count;
+                if (assigncountreminder > 0)
+                { 
+                    int i = 0;
+
+                    foreach (var member in groupmembers)
+                    {
+                        var Admin = adminGroup.Admin_id == member.gu.Members_id;
+
+
+                        int extraCount = (i < assigncountreminder) ? 1 : 0;
+                        i++;
+
+                        var newRequest = new Request
+                        {
+                            Tasbeeh_Id = grouptasbeehid,
+                            Sender_id = adminGroup.Admin_id,
+                            Receiver_id = member.gu.Members_id,
+                            Group_id = adminGroup.ID,
+                            Assigned_count = assignCount + extraCount,
+                            Send_at = DateTime.Now,
+                            Status = Admin ? "Accept" : "Pending",
+                            Accept_at = Admin ? DateTime.Now : (DateTime?)null
+                        };
+
+                        if (Admin)
+                        {
+                            var gutddata = Db.groupusertasbeehdeatiles.Where(a => a.Group_user_id == member.gu.ID && a.Group_Tasbeeh_Id == grouptasbeehid && a.Flag == 0).FirstOrDefault();
+                            gutddata.Assign_count = gutddata.Assign_count + assignCount+extraCount;
+                            Db.SaveChanges();
+                        }
+
+                        Db.Request.Add(newRequest);
+                    }
+                }
+                if (assigncountreminder == 0)
+                {
+                    foreach (var member in groupmembers)
+                    {
+                        var Admin = adminGroup.Admin_id == member.gu.Members_id;
+                        var newRequest = new Request
+                        {
+                            Tasbeeh_Id = grouptasbeehid,
+                            Sender_id = adminGroup.Admin_id,
+                            Receiver_id = member.gu.Members_id,
+                            Group_id = adminGroup.ID,
+                            Assigned_count = assignCount,
+                            Send_at = DateTime.Now,
+                            Status = Admin ? "Accept" : "Pending",
+                            Accept_at = Admin ? DateTime.Now : (DateTime?)null
+                        };
+                        if (Admin)
+                        {
+                            var gutddata = Db.groupusertasbeehdeatiles.Where(a => a.Group_user_id == member.gu.ID && a.Group_Tasbeeh_Id == grouptasbeehid && a.Flag == 0).FirstOrDefault();
+                            gutddata.Assign_count = gutddata.Assign_count + assignCount;
+                            Db.SaveChanges();
+                        }
+                        Db.Request.Add(newRequest);
+                    }
+                }
+                var data = Db.leavegroupusertasbeehdeatiles.Where(a => a.ID == leaveid).FirstOrDefault();
+                data.Flag = 1;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "Tasbeeh Distributed Equally and Records Added.");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+        ////Reassign tasbeeh munally to all group members
+        //Tasbeeh Distribute Manully Send Request Function
+        [HttpPost]
+        public HttpResponseMessage reassignDistributeTasbeehManually()
+        {
+            try
+            {
+
+                var form = HttpContext.Current.Request.Form;
+
+                int groupid = int.Parse(form["groupid"]);
+                int tasbeehid = int.Parse(form["tasbeehid"]);
+                var tasbeehGoal = int.Parse(form["goal"]);
+                int leaveid= int.Parse(form["leaveid"]);
+
+                List<int> id = JsonConvert.DeserializeObject<List<int>>(form["id"]);
+                List<int> count = JsonConvert.DeserializeObject<List<int>>(form["count"]);
+
+                var adminGroup = Db.Groups.FirstOrDefault(g => g.ID == groupid);
+                if (adminGroup == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Group not found.");
+                }
+
+                if (tasbeehGoal==0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "No active tasbeeh goal found for this group.");
+                }
+
+                for (int i = 0; i < id.Count; i++)
+                {
+                    int memberId = id[i];
+                    int assignedCount = count[i];
+                    bool isAdmin = memberId == adminGroup.Admin_id;
+
+                    var newRequest = new Request
+                    {
+                        Tasbeeh_Id = tasbeehid,
+                        Sender_id = adminGroup.Admin_id,
+                        Receiver_id = memberId,
+                        Group_id = adminGroup.ID,
+                        Assigned_count = assignedCount,
+                        Send_at = DateTime.Now,
+                        Status = isAdmin ? "Accept" : "Pending",
+                        Accept_at = isAdmin ? DateTime.Now : (DateTime?)null
+                    };
+                    Db.Request.Add(newRequest);
+
+
+                    if (isAdmin)
+                    {
+                        var mid = Db.GroupUsers.FirstOrDefault(a => a.Group_id == groupid && a.Members_id == memberId);
+                        var gutddata = Db.groupusertasbeehdeatiles.Where(a => a.Group_user_id == mid.ID && a.Group_Tasbeeh_Id == tasbeehid && a.Flag == 0).FirstOrDefault();
+                        gutddata.Assign_count = gutddata.Assign_count + assignedCount;
+                        Db.SaveChanges();
+                    }
+                }
+                var data = Db.leavegroupusertasbeehdeatiles.Where(a => a.ID == leaveid).FirstOrDefault();
+                data.Flag = 1;
+                Db.SaveChanges(); 
+              
+                return Request.CreateResponse(HttpStatusCode.OK, "Requests sent successfully.");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
     }
 }

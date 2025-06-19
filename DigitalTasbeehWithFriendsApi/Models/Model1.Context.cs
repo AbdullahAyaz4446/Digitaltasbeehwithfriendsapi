@@ -25,11 +25,9 @@ namespace DigitalTasbeehWithFriendsApi.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Notification> Notification { get; set; }
         public virtual DbSet<Quran_Tasbeeh> Quran_Tasbeeh { get; set; }
         public virtual DbSet<Request> Request { get; set; }
         public virtual DbSet<Tasbeeh_Detailes> Tasbeeh_Detailes { get; set; }
-        public virtual DbSet<groupusertasbeehdeatiles> groupusertasbeehdeatiles { get; set; }
         public virtual DbSet<GroupUsers> GroupUsers { get; set; }
         public virtual DbSet<quran_text> quran_text { get; set; }
         public virtual DbSet<Sura> Sura { get; set; }
@@ -37,10 +35,13 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public virtual DbSet<Users> Users { get; set; }
         public virtual DbSet<wazifa_text> wazifa_text { get; set; }
         public virtual DbSet<Groups> Groups { get; set; }
-        public virtual DbSet<SingleTasbeeh> SingleTasbeeh { get; set; }
         public virtual DbSet<Tasbeeh> Tasbeeh { get; set; }
         public virtual DbSet<Chaintasbeehdeatiles> Chaintasbeehdeatiles { get; set; }
-        public virtual DbSet<AssignToSingleTasbeeh> AssignToSingleTasbeeh { get; set; }
+        public virtual DbSet<groupusertasbeehdeatiles> groupusertasbeehdeatiles { get; set; }
+        public virtual DbSet<Notification> Notification { get; set; }
         public virtual DbSet<GroupTasbeeh> GroupTasbeeh { get; set; }
+        public virtual DbSet<AssignToSingleTasbeeh> AssignToSingleTasbeeh { get; set; }
+        public virtual DbSet<SingleTasbeeh> SingleTasbeeh { get; set; }
+        public virtual DbSet<leavegroupusertasbeehdeatiles> leavegroupusertasbeehdeatiles { get; set; }
     }
 }

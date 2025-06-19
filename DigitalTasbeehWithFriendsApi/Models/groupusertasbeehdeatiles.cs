@@ -21,5 +21,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public Nullable<System.DateTime> Enddate { get; set; }
         public Nullable<int> Assign_count { get; set; }
         public Nullable<int> Current_count { get; set; }
+        public Nullable<int> Flag { get; set; }
     }
 }

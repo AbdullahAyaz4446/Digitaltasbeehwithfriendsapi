@@ -21,5 +21,7 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public int Achieved { get; set; }
         public System.DateTime Start_date { get; set; }
         public Nullable<System.DateTime> End_date { get; set; }
+        public Nullable<int> Flag { get; set; }
+        public Nullable<int> schedule { get; set; }
     }
 }

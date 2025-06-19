@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Http;
@@ -13,11 +14,14 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
 {
     public class UserController : ApiController
     {
+
+
         DTWFEntities Db=new DTWFEntities();
+
         ////update
         //[HttpPost]
         //public HttpResponseMessage UpdateUser(int id)
-        //{
+        //{r
         //    try
         //    {
         //        var request = HttpContext.Current.Request;
@@ -96,7 +100,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                U.Status = "unavalible";
+                U.Status = "online";
                 Db.Users.Add(U);
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "SignUp Succesfully");
@@ -118,7 +122,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 if (User == null) {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "User NOt Found");
                 }
-                User.Status = "avalible";
+                User.Status = "online";
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, User);
 
@@ -182,32 +186,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             }
         }
         // Active Your Self Function
-        [HttpPost]
-        public HttpResponseMessage Active(int ID) {
-            try
-            {
-                var user = Db.Users.FirstOrDefault(u => u.ID ==ID);
-                if (user == null)
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "User not found");
-                }
-                user.Status = "avalible";
-                Db.SaveChanges();
-              
-
-                return Request.CreateResponse(HttpStatusCode.OK, "avalible");
-
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
-            }
-
-
-        }
-        // UnActive Your Self Function
-        [HttpPost]
-        public HttpResponseMessage UnActive(int ID)
+        [HttpGet]
+        public HttpResponseMessage Online(int ID)
         {
             try
             {
@@ -216,11 +196,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "User not found");
                 }
-                user.Status = "unavalible";
-                Db.SaveChanges();
-
-
-                return Request.CreateResponse(HttpStatusCode.OK, "unavalible");
+                return Request.CreateResponse(HttpStatusCode.OK, "online");
 
             }
             catch (Exception ex)
@@ -230,6 +206,53 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
 
 
         }
+        // update online state
+        [HttpGet]
+        public HttpResponseMessage UpdateOnlineStatus(int UserID, String Status)
+        {
+            try
+            {
+                var user = Db.Users.FirstOrDefault(u => u.ID == UserID);
+                if (user == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "User not found");
+                }
+                user.Status = Status;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "online");
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+        }
+        // UnActive Your Self Function
+        //[HttpPost]
+        //public HttpResponseMessage UnActive(int ID)
+        //{
+        //    try
+        //    {
+        //        var user = Db.Users.FirstOrDefault(u => u.ID == ID);
+        //        if (user == null)
+        //        {
+        //            return Request.CreateResponse(HttpStatusCode.NotFound, "User not found");
+        //        }
+        //        user.Status = "unavalible";
+        //        Db.SaveChanges();
+
+
+        //        return Request.CreateResponse(HttpStatusCode.OK, "unavalible");
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        //    }
+
+
+        //}
         // Search Function
         [HttpGet]
         public HttpResponseMessage Searchuser(String email)
@@ -237,6 +260,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             try
             {
                 var user = Db.Users.FirstOrDefault(a => a.Email == email);
+
                 if(user == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "User Not Found");
@@ -332,7 +356,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             {
 
                 var groupuserid = Db.GroupUsers
-                    .Where(gu => gu.Members_id == userId&&gu.Group_id== groupId)
+                    .Where(gu => gu.Members_id == userId && gu.Group_id == groupId)
                     .Select(gu => gu.ID)
                     .FirstOrDefault();
 
@@ -346,9 +370,9 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     .Join(Db.GroupTasbeeh, gutd => gutd.Group_Tasbeeh_Id, gt => gt.ID, (gutd, gt) => new
                     {
                         GroupTasbeeh = gt,
-                        groupusertasbeehdeatiles = gutd
+                        groupusertasbeehdeatiles = gutd 
                     })
-                    .Where(res => res.GroupTasbeeh.Group_id == groupId && res.GroupTasbeeh.ID == tasbeehid)
+                    .Where(res => res.GroupTasbeeh.Group_id == groupId&&res.GroupTasbeeh.ID==tasbeehid&&res.groupusertasbeehdeatiles.Flag==0)
                     .Join(Db.Groups, gt => gt.GroupTasbeeh.Group_id, g => g.ID, (gt, g) => new
                     {
                         GroupTasbeeh = gt.GroupTasbeeh,
@@ -362,7 +386,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Group = gt.Group,
                         GroupUsers = gu
                     })
-                    .Where(res => res.groupusertasbeehdeatiles.Group_user_id == groupuserid&&res.Group.ID==res.GroupUsers.Group_id)
+                    .Where(res => res.groupusertasbeehdeatiles.Group_user_id == groupuserid && res.Group.ID == groupId && res.GroupTasbeeh.ID==tasbeehid&&res.groupusertasbeehdeatiles.Flag==0)
                     .Join(Db.Users, g => g.GroupUsers.Members_id, u => u.ID, (g, u) => new
                     {
                         GroupTasbeeh = g.GroupTasbeeh,
@@ -373,6 +397,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     })
                     .Select(res => new
                     {
+                        groupusertasbeehdeatilesid=res.groupusertasbeehdeatiles.ID,
+                        Grouptasbeehid=res.GroupTasbeeh.ID,
                         TasbeehID = res.GroupTasbeeh.Tasbeeh_id,
                         GroupTitle = res.Group.Group_Title,
                         Username = res.users.Username,
@@ -380,13 +406,12 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Current = res.groupusertasbeehdeatiles.Current_count,
                         deadline = res.GroupTasbeeh.End_date
                     })
-                    .FirstOrDefault();
-
+                    .FirstOrDefault(); 
+                 
                 if (tasbeehProgress == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "No Tasbeeh progress found for the user in this group.");
                 }
-
 
                 return Request.CreateResponse(HttpStatusCode.OK, tasbeehProgress);
 
@@ -441,7 +466,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Group = g.Group,
                         GroupUsers = g.GroupUsers,
                         users = Db.Users.Where(a => a.ID == userid).FirstOrDefault()
-                    }).Where(a=>a.GroupTasbeeh.ID==a.groupusertasbeehdeatiles.Group_Tasbeeh_Id&& groupuserid == a.groupusertasbeehdeatiles.Group_user_id&&a.groupusertasbeehdeatiles.Group_Tasbeeh_Id==a.GroupTasbeeh.ID&&a.GroupTasbeeh.ID==tasbeehid)
+                    }).Where(a=>a.GroupTasbeeh.ID==a.groupusertasbeehdeatiles.Group_Tasbeeh_Id&& groupuserid == a.groupusertasbeehdeatiles.Group_user_id&&a.groupusertasbeehdeatiles.Group_Tasbeeh_Id==a.GroupTasbeeh.ID&&a.GroupTasbeeh.ID==tasbeehid&&a.groupusertasbeehdeatiles.Flag==0)
                     .Select(res => new
                     {
                         TasbeehID = res.GroupTasbeeh.ID,
@@ -452,31 +477,22 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Adminid = res.Group.Admin_id,
                         Goal = res.groupusertasbeehdeatiles.Assign_count,
                         username = res.users.Username,
-                        Grouptitle = res.Group.Group_Title
+                        Grouptitle = res.Group.Group_Title,
+                        ID=res.groupusertasbeehdeatiles.ID
+                        
+                        
 
                     }).FirstOrDefault();
+                var updateenddate=Db.groupusertasbeehdeatiles.Where(a=>a.ID==tasbeehProgress.ID).FirstOrDefault();
        
-                if (tasbeehProgress.Current == tasbeehProgress.Goal)
+                if (tasbeehProgress.Current+1 == tasbeehProgress.Goal)
                 {
                    
+                    updateenddate.Enddate = DateTime.Now;
                     var data = Db.groupusertasbeehdeatiles.Where(a => a.Group_Tasbeeh_Id == tasbeehid && a.Group_user_id == groupuserid).FirstOrDefault();
-                    data.Enddate = DateTime.Now;
-
-
-                    string adminMessage = $"You completed the goal of {tasbeehProgress.Grouptitle}.";
-                    string detailMessage = $"{tasbeehProgress.username} completed the goal of {tasbeehProgress.Grouptitle}.";
-
-                    var no = new Notification
-                    {
-                        Sender_id = tasbeehProgress.Adminid,
-                        Receiver_id = tasbeehProgress.memberid??0,
-                        Detail = tasbeehProgress.Adminid == userid ? adminMessage : detailMessage
-
-                    };
-                    Db.Notification.Add(no);
+                    data.Current_count = tasbeehProgress.Current + 1;
                     Db.SaveChanges();
-                    return Request.CreateResponse(HttpStatusCode.OK, detailMessage);
-
+                    return Request.CreateResponse(HttpStatusCode.OK, "Your Tasbeeh Goal is Completed");
                 }
                 else
                 {
@@ -520,13 +536,14 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     Group = g.Group,
                     Groupuser = g.Groupuser,
                     User = u
-                }).Where(d => d.Request.Status == "Pending" && d.Request.Receiver_id == userid&&d.Group.Flag==false)
+                }).Where(d => d.Request.Status == "Pending" && d.Request.Receiver_id == userid&&d.Group.Flag==false&&d.Grouptasbeeh.Flag==0)
                 .Select(data => new
                 {
                     id = data.Request.ID,
                     GroupTitle = data.Group.Group_Title,
                     Count = data.Request.Assigned_count,
                     Tasbeehname =Db.Tasbeeh.Where(a => a.ID == data.Grouptasbeeh.Tasbeeh_id).Select(a => new { Title = a.Tasbeeh_Title, Id = a.ID }).FirstOrDefault(),
+                    Type="request"
     })
     .Distinct()
    .OrderByDescending(x => x.id)
@@ -544,57 +561,131 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         }
         //Leave Group and Send Notification i mean reason Your Are ill or something
         [HttpGet]
-        public HttpResponseMessage Leavetasbeeh(int userid,int groupid,String Message)
+        public HttpResponseMessage Leavetasbeeh(int id, String Message,int userid)
         {
             try
             {
-                var adminid = Db.Groups.Where(a => a.ID == groupid).FirstOrDefault();
-                var groupuser = Db.GroupUsers.Where(a => a.Members_id == userid && a.Group_id == groupid).FirstOrDefault();
-                var activetasbeeh = Db.GroupTasbeeh.Where(a => a.Group_id == groupid).FirstOrDefault();
-                var groupmembers = Db.GroupUsers
-                   .Where(g => g.Group_id == groupid && g.Members_id != userid)
-                   .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
-                   .Where(member => member.u.Status == "avalible")
-                   .ToList();
-                if (groupuser == null) {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
-                }
-                var groupusertasbeehdeatiles = Db.groupusertasbeehdeatiles.Where(a => a.Group_user_id == groupuser.ID && a.Group_Tasbeeh_Id == activetasbeeh.ID).FirstOrDefault();
-                var remaningcount = groupusertasbeehdeatiles.Assign_count - groupusertasbeehdeatiles.Current_count;
-                var dividecount = remaningcount / groupmembers.Count();
-                foreach (var member in groupmembers)
+                //var gernatenotification=Db.groupusertasbeehdeatiles
+                //  .Where(gutd => gutd.ID == id && gutd.Flag == 0)
+                //  .Join(Db.GroupTasbeeh, gutd => gutd.Group_Tasbeeh_Id, gt => gt.ID, (gutd, gt) => new
+                //  {
+                //      GroupTasbeeh = gt,
+                //      groupusertasbeehdeatiles = gutd
+                //  })
+                //  .Join(Db.Groups, gt => gt.GroupTasbeeh.Group_id, g => g.ID, (gt, g) => new
+                //  {
+                //      GroupTasbeeh = gt.GroupTasbeeh,
+                //      groupusertasbeehdeatiles = gt.groupusertasbeehdeatiles,
+                //      Group = g
+                //  }).Where(a => a.GroupTasbeeh.ID == a.groupusertasbeehdeatiles.Group_Tasbeeh_Id)
+                //  .Join(Db.GroupUsers, gt => gt.Group.ID, gu => gu.Group_id, (gt, gu) => new
+                //  {
+                //      GroupTasbeeh = gt.GroupTasbeeh,
+                //      groupusertasbeehdeatiles = gt.groupusertasbeehdeatiles,
+                //      Group = gt.Group,
+                //      GroupUsers = gu
+                //  })
+                //  .Join(Db.Users, g => g.GroupUsers.Members_id, u => u.ID, (g, u) => new
+                //  {
+                //      GroupTasbeeh = g.GroupTasbeeh,
+                //      groupusertasbeehdeatiles = g.groupusertasbeehdeatiles,
+                //      Group = g.Group,
+                //      GroupUsers = g.GroupUsers,
+                //      users = u
+                //  })
+                //  .Select(res => new
+                //  {
+                //      groupusertasbeehdeatilesid = res.groupusertasbeehdeatiles.ID,
+                //      Groupid=res.Group.ID,
+                //      groupTasbeehID = res.GroupTasbeeh.ID,
+                //      memberid = res.groupusertasbeehdeatiles.Group_user_id,
+                //      Current = res.groupusertasbeehdeatiles.Current_count,
+                //      Adminid = res.Group.Admin_id,
+                //      Goal = res.groupusertasbeehdeatiles.Assign_count,
+                //      username = res.users.Username,
+                //      Grouptitle = res.Group.Group_Title,
+                //      tasbeehtitle=Db.Tasbeeh.Where(a => a.ID == res.GroupTasbeeh.Tasbeeh_id).Select(a => new { Title = a.Tasbeeh_Title}).FirstOrDefault(),
+                //      startdate=res.groupusertasbeehdeatiles.startdate,
+                //      Enddate=res.groupusertasbeehdeatiles.Enddate
+
+                //  }).FirstOrDefault();
+
+
+                var username = Db.Users.Where(a => a.ID == userid).Select(a => a.Username).FirstOrDefault();
+
+                
+                var deletegroupuser = Db.groupusertasbeehdeatiles.Where(a => a.ID == id).FirstOrDefault();
+                var data = Db.groupusertasbeehdeatiles.Join(Db.GroupTasbeeh, a => a.Group_Tasbeeh_Id, gt => gt.ID, (a, gt) => new
                 {
-                    var newRequest = new Request
-                    {
-                        Tasbeeh_Id = activetasbeeh.ID,
-                        Sender_id = userid,
-                        Receiver_id = member.gu.Members_id,
-                        Group_id = groupid,
-                        Assigned_count=dividecount ?? 0,
-                        Send_at = DateTime.Now,
-                        Status = "Pending",
-                    };
-                    Db.Request.Add(newRequest);
-                }
-                var no = new Notification
+                    groupusertasbeehdeatiles = a,
+                    GroupTasbeeh = gt
+                }).Where(res => res.GroupTasbeeh.ID == deletegroupuser.Group_Tasbeeh_Id).Join(Db.Groups, res => res.GroupTasbeeh.Group_id, g => g.ID, (res, g) => new
                 {
-                    Sender_id = userid,
-                    Receiver_id = adminid.Admin_id,
-                    Detail = Message
+                    groupusertasbeehdeatiles = res.groupusertasbeehdeatiles,
+                    GroupTasbeeh = res.GroupTasbeeh,
+                    Group = g
+                }).Join(Db.Tasbeeh, res => res.GroupTasbeeh.Tasbeeh_id, t => t.ID, (res, t) => new
+                {
+                    groupusertasbeehdeatiles = res.groupusertasbeehdeatiles,
+                    GroupTasbeeh = res.GroupTasbeeh,
+                    Group = res.Group,
+                    TasbeehTitle = t.Tasbeeh_Title
+                }).Where(a => a.groupusertasbeehdeatiles.ID == id).FirstOrDefault();
+
+
+                   var  message = $"User '{username}' has left the tasbeeh '{data.TasbeehTitle}' in group '{data.Group.Group_Title}'. Reason: {Message}";
+                var leavemember = new leavegroupusertasbeehdeatiles
+                {
+                    Group_Tasbeeh_id = deletegroupuser.Group_Tasbeeh_Id,
+                    Group_user_id = deletegroupuser.Group_user_id,
+                    Enddate = deletegroupuser.Enddate,
+                    startdate = deletegroupuser.startdate,
+                    Assign_count= deletegroupuser.Assign_count,
+                    Current_count= deletegroupuser.Current_count,
+                    Flag = 0,
+                    Message= message,
+                    Groupadminid=data.Group.Admin_id,
+                    groupid=data.Group.ID
                 };
-                Db.Notification.Add(no);
-                Db.groupusertasbeehdeatiles.Remove(groupusertasbeehdeatiles);
+                Db.leavegroupusertasbeehdeatiles.Add(leavemember);
+                deletegroupuser.Flag = 3;
                 Db.SaveChanges();
-
-                return Request.CreateResponse(HttpStatusCode.OK, "Succesfully Tasbeeh Leave");
-               
-
+                return Request.CreateResponse(HttpStatusCode.OK, message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-       
+
+        // Get the list of All group members
+        [HttpGet]
+        public HttpResponseMessage Allgroupmember(int groupid)
+        {
+            try
+            {
+                var data = Db.GroupUsers.Where(a => a.Group_id == groupid).ToList();
+
+                return Request.CreateResponse(HttpStatusCode.OK, data);
+            }catch(Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        // Get the list of All leave group members deatiles
+        [HttpGet]
+        public HttpResponseMessage Allleavegroupmember(int userid)
+        {
+            try
+            {
+                var data = Db.leavegroupusertasbeehdeatiles.Where(a => a.Groupadminid == userid && a.Flag == 0).OrderByDescending(a => a.ID).ToList();
+
+                return Request.CreateResponse(HttpStatusCode.OK, data);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
     }
 }
