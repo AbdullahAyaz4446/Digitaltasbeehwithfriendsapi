@@ -261,5 +261,43 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+        ////going to work and save tasbeeh log
+        [HttpPost]
+        public HttpResponseMessage Savetasbeehlog(tasbeehlogs tbl)
+        {
+            try
+            {
+                tbl.leaveat = DateTime.Now;
+                tbl.Flag = 0;
+                Db.tasbeehlogs.Add(tbl);
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "Succsully save data");
+
+            }catch(Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        // Show pop up when you come back 
+        [HttpGet]
+        public HttpResponseMessage fetchtasbeehlog(int Userid,int grouptasbeehid)
+        {
+            try
+            {
+                var data = Db.tasbeehlogs.Where(a => a.Userid == Userid && a.grouptasbeehid == grouptasbeehid&&a.Flag==0).FirstOrDefault();
+                data.startat = DateTime.Now;
+                data.Flag = 1;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, data);
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+       
+      
+
     }
 }

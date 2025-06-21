@@ -163,6 +163,18 @@
           <Property Name="Quran_Tasbeeh_id" Type="int" Nullable="false" />
           <Property Name="Tasbeeh_id" Type="int" Nullable="false" />
         </EntityType>
+        <EntityType Name="tasbeehlogs">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Userid" Type="int" />
+          <Property Name="grouptasbeehid" Type="int" />
+          <Property Name="note" Type="int" />
+          <Property Name="startat" Type="datetime" />
+          <Property Name="leaveat" Type="datetime" />
+          <Property Name="Flag" Type="int" />
+        </EntityType>
         <EntityType Name="Users">
           <Key>
             <PropertyRef Name="ID" />
@@ -205,6 +217,7 @@
           <EntitySet Name="Sura" EntityType="Self.Sura" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tasbeeh" EntityType="Self.Tasbeeh" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tasbeeh_Detailes" EntityType="Self.Tasbeeh_Detailes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tasbeehlogs" EntityType="Self.tasbeehlogs" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="wazifa_Deatiles" EntityType="Self.wazifa_Deatiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="wazifa_text" EntityType="Self.wazifa_text" Schema="dbo" store:Type="Tables" />
@@ -232,6 +245,7 @@
           <EntitySet Name="AssignToSingleTasbeeh" EntityType="DTWFModel.AssignToSingleTasbeeh" />
           <EntitySet Name="SingleTasbeeh" EntityType="DTWFModel.SingleTasbeeh" />
           <EntitySet Name="leavegroupusertasbeehdeatiles" EntityType="DTWFModel.leavegroupusertasbeehdeatiles" />
+          <EntitySet Name="tasbeehlogs" EntityType="DTWFModel.tasbeehlogs" />
         </EntityContainer>
         <EntityType Name="Quran_Tasbeeh">
           <Key>
@@ -416,6 +430,18 @@
           <Property Name="Message" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
           <Property Name="Groupadminid" Type="Int32" />
           <Property Name="groupid" Type="Int32" />
+        </EntityType>
+        <EntityType Name="tasbeehlogs">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Userid" Type="Int32" />
+          <Property Name="grouptasbeehid" Type="Int32" />
+          <Property Name="note" Type="Int32" />
+          <Property Name="startat" Type="DateTime" Precision="3" />
+          <Property Name="leaveat" Type="DateTime" Precision="3" />
+          <Property Name="Flag" Type="Int32" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -621,6 +647,19 @@
                 <ScalarProperty Name="startdate" ColumnName="startdate" />
                 <ScalarProperty Name="Group_user_id" ColumnName="Group_user_id" />
                 <ScalarProperty Name="Group_Tasbeeh_id" ColumnName="Group_Tasbeeh_id" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tasbeehlogs">
+            <EntityTypeMapping TypeName="DTWFModel.tasbeehlogs">
+              <MappingFragment StoreEntitySet="tasbeehlogs">
+                <ScalarProperty Name="Flag" ColumnName="Flag" />
+                <ScalarProperty Name="leaveat" ColumnName="leaveat" />
+                <ScalarProperty Name="startat" ColumnName="startat" />
+                <ScalarProperty Name="note" ColumnName="note" />
+                <ScalarProperty Name="grouptasbeehid" ColumnName="grouptasbeehid" />
+                <ScalarProperty Name="Userid" ColumnName="Userid" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

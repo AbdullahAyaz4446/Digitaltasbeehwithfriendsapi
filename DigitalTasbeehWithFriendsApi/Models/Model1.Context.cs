@@ -43,5 +43,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public virtual DbSet<AssignToSingleTasbeeh> AssignToSingleTasbeeh { get; set; }
         public virtual DbSet<SingleTasbeeh> SingleTasbeeh { get; set; }
         public virtual DbSet<leavegroupusertasbeehdeatiles> leavegroupusertasbeehdeatiles { get; set; }
+        public virtual DbSet<tasbeehlogs> tasbeehlogs { get; set; }
     }
 }

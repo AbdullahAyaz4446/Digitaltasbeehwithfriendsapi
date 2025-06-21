@@ -251,6 +251,9 @@
     <Compile Include="Models\Tasbeeh.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\tasbeehlogs.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Tasbeeh_Detailes.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
