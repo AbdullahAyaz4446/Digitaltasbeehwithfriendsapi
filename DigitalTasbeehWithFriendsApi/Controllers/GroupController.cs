@@ -125,7 +125,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         GroupTasbeeh = gt.GroupTasbeeh,
                         GroupUserTasbeehDetails = gt.GroupUserTasbeehDetails,
                         GroupUser = gu
-                    }).Where(res => res.GroupTasbeeh.ID==tasbeehid&&res.GroupTasbeeh.Flag==0&&res.GroupUserTasbeehDetails.Flag==0)
+                    }).Where(res => res.GroupTasbeeh.ID==tasbeehid&&res.GroupTasbeeh.Flag==0&&res.GroupUserTasbeehDetails.Flag==0|| res.GroupTasbeeh.ID == tasbeehid && res.GroupTasbeeh.Flag == 2 && res.GroupUserTasbeehDetails.Flag != 3 )
                     .Join(Db.Users, g => g.GroupUser.Members_id, u => u.ID, (g, u) => new
                     {
                         TasbeehID = g.GroupTasbeeh.Tasbeeh_id,
@@ -220,7 +220,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 }
 
                 var groupTasbeehs = Db.GroupTasbeeh
-                    .Where(a => a.Group_id == groupid && a.Flag != 3)
+                    .Where(a => a.Group_id == groupid && a.Flag != 3&& a.Group_id == groupid && a.Flag != 4)
                     .ToList();
 
                 var result = new List<object>();
@@ -231,7 +231,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     var userHasTasbeeh = Db.groupusertasbeehdeatiles
                         .Any(a => a.Group_Tasbeeh_Id == groupTasbeeh.ID &&
                                   a.Group_user_id == memberId &&
-                                  a.Flag == 0);
+                                  a.Flag !=3);
 
                     if (userHasTasbeeh)
                     {
@@ -281,7 +281,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         // Show pop up when you come back 
         [HttpGet]
         public HttpResponseMessage fetchtasbeehlog(int Userid,int grouptasbeehid)
-        {
+        { 
             try
             {
                 var data = Db.tasbeehlogs.Where(a => a.Userid == Userid && a.grouptasbeehid == grouptasbeehid&&a.Flag==0).FirstOrDefault();
@@ -296,8 +296,45 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-       
-      
+        // update date of group tasbeeh
+        [HttpGet]
+        public HttpResponseMessage updatedata(int id,DateTime  newenddate)
+        {
+            try
+            {
+
+                var data=Db.GroupTasbeeh.FirstOrDefault(a=>a.ID == id);
+                data.End_date = newenddate;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "update succesfully");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+        }
+
+        //update tasbeeh day
+        [HttpGet]
+        public HttpResponseMessage updateday(int id,int day)
+        {
+            try
+            {
+
+                var data = Db.GroupTasbeeh.FirstOrDefault(a => a.ID == id);
+                data.schedule = day;
+                Db.SaveChanges();
+                return Request.CreateResponse(HttpStatusCode.OK, "update succesfully");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+        }
+
+
 
     }
 }

@@ -86,7 +86,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
             try
             {
                
-                var data = Db.Tasbeeh.Join(Db.AssignToSingleTasbeeh, t => t.ID, ast => ast.Tasbeeh_id, (t, ast) => new { Tasbeeh = t, Asigntasbeehdata = ast }).Where(result => result.Asigntasbeehdata.SingleTasbeeh_id == id&&result.Asigntasbeehdata.Flag!=3).Select(res => new
+                var data = Db.Tasbeeh.Join(Db.AssignToSingleTasbeeh, t => t.ID, ast => ast.Tasbeeh_id, (t, ast) => new { Tasbeeh = t, Asigntasbeehdata = ast }).Where(result => result.Asigntasbeehdata.SingleTasbeeh_id == id&&result.Asigntasbeehdata.Flag!=3&& result.Asigntasbeehdata.SingleTasbeeh_id == id && result.Asigntasbeehdata.Flag != 4).Select(res => new
                 {
                     ID=res.Asigntasbeehdata.ID,
                     title = res.Tasbeeh.Tasbeeh_Title,
@@ -116,10 +116,12 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         {
             try
             {
-                var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id && a.ID == tasbeehid).FirstOrDefault();
-                if (data.Goal == data.Achieved)
+                var data = Db.AssignToSingleTasbeeh.Where(a => a.SingleTasbeeh_id == id && a.ID == tasbeehid&&a.Flag==0).FirstOrDefault();
+                if (data.Goal == data.Achieved+1)
                 {
                     data.Flag = 2;
+                    data.Achieved = data.Achieved + 1;
+                    Db.SaveChanges();
                     return Request.CreateResponse(HttpStatusCode.OK,"Completed");
                 }
                 else
@@ -264,6 +266,27 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
 
             }
             catch(Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        [HttpGet]
+        public HttpResponseMessage delete(int id)
+        {
+            try
+            {
+                var tasbeeh = Db.AssignToSingleTasbeeh.Where(a => a.ID == id).FirstOrDefault();
+                if (tasbeeh == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
+                }
+                tasbeeh.Flag = 4;
+                Db.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK, "Delete");
+
+            }
+            catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }

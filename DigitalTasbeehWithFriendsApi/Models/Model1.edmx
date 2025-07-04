@@ -128,6 +128,7 @@
           <Property Name="Status" Type="varchar" MaxLength="20" />
           <Property Name="Send_at" Type="datetime" Nullable="false" />
           <Property Name="Accept_at" Type="datetime" />
+          <Property Name="reminerid" Type="int" />
         </EntityType>
         <EntityType Name="SingleTasbeeh">
           <Key>
@@ -137,6 +138,7 @@
           <Property Name="Title" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="User_id" Type="int" Nullable="false" />
           <Property Name="Flag" Type="bit" />
+          <Property Name="schedule" Type="int" />
         </EntityType>
         <EntityType Name="Sura">
           <Key>
@@ -228,7 +230,6 @@
       <Schema Namespace="DTWFModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="DTWFEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Quran_Tasbeeh" EntityType="DTWFModel.Quran_Tasbeeh" />
-          <EntitySet Name="Request" EntityType="DTWFModel.Request" />
           <EntitySet Name="Tasbeeh_Detailes" EntityType="DTWFModel.Tasbeeh_Detailes" />
           <EntitySet Name="GroupUsers" EntityType="DTWFModel.GroupUsers" />
           <EntitySet Name="quran_text" EntityType="DTWFModel.quran_text" />
@@ -246,6 +247,7 @@
           <EntitySet Name="SingleTasbeeh" EntityType="DTWFModel.SingleTasbeeh" />
           <EntitySet Name="leavegroupusertasbeehdeatiles" EntityType="DTWFModel.leavegroupusertasbeehdeatiles" />
           <EntitySet Name="tasbeehlogs" EntityType="DTWFModel.tasbeehlogs" />
+          <EntitySet Name="Request" EntityType="DTWFModel.Request" />
         </EntityContainer>
         <EntityType Name="Quran_Tasbeeh">
           <Key>
@@ -257,20 +259,6 @@
           <Property Name="Ayah_number_to" Type="Int32" Nullable="false" />
           <Property Name="Ayah_text" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Count" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Request">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Tasbeeh_Id" Type="Int32" Nullable="false" />
-          <Property Name="Sender_id" Type="Int32" Nullable="false" />
-          <Property Name="Receiver_id" Type="Int32" Nullable="false" />
-          <Property Name="Group_id" Type="Int32" Nullable="false" />
-          <Property Name="Assigned_count" Type="Int32" Nullable="false" />
-          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="Send_at" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Accept_at" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="Tasbeeh_Detailes">
           <Key>
@@ -414,6 +402,7 @@
           <Property Name="Title" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="User_id" Type="Int32" Nullable="false" />
           <Property Name="Flag" Type="Boolean" />
+          <Property Name="schedule" Type="Int32" />
         </EntityType>
         <EntityType Name="leavegroupusertasbeehdeatiles">
           <Key>
@@ -443,6 +432,21 @@
           <Property Name="leaveat" Type="DateTime" Precision="3" />
           <Property Name="Flag" Type="Int32" />
         </EntityType>
+        <EntityType Name="Request">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Tasbeeh_Id" Type="Int32" Nullable="false" />
+          <Property Name="Sender_id" Type="Int32" Nullable="false" />
+          <Property Name="Receiver_id" Type="Int32" Nullable="false" />
+          <Property Name="Group_id" Type="Int32" Nullable="false" />
+          <Property Name="Assigned_count" Type="Int32" Nullable="false" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="Send_at" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Accept_at" Type="DateTime" Precision="3" />
+          <Property Name="reminerid" Type="Int32" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -457,21 +461,6 @@
                 <ScalarProperty Name="Ayah_number_to" ColumnName="Ayah_number_to" />
                 <ScalarProperty Name="Ayah_number_from" ColumnName="Ayah_number_from" />
                 <ScalarProperty Name="Sura_name" ColumnName="Sura_name" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Request">
-            <EntityTypeMapping TypeName="DTWFModel.Request">
-              <MappingFragment StoreEntitySet="Request">
-                <ScalarProperty Name="Accept_at" ColumnName="Accept_at" />
-                <ScalarProperty Name="Send_at" ColumnName="Send_at" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="Assigned_count" ColumnName="Assigned_count" />
-                <ScalarProperty Name="Group_id" ColumnName="Group_id" />
-                <ScalarProperty Name="Receiver_id" ColumnName="Receiver_id" />
-                <ScalarProperty Name="Sender_id" ColumnName="Sender_id" />
-                <ScalarProperty Name="Tasbeeh_Id" ColumnName="Tasbeeh_Id" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -627,6 +616,7 @@
           <EntitySetMapping Name="SingleTasbeeh">
             <EntityTypeMapping TypeName="DTWFModel.SingleTasbeeh">
               <MappingFragment StoreEntitySet="SingleTasbeeh">
+                <ScalarProperty Name="schedule" ColumnName="schedule" />
                 <ScalarProperty Name="Flag" ColumnName="Flag" />
                 <ScalarProperty Name="User_id" ColumnName="User_id" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
@@ -660,6 +650,22 @@
                 <ScalarProperty Name="note" ColumnName="note" />
                 <ScalarProperty Name="grouptasbeehid" ColumnName="grouptasbeehid" />
                 <ScalarProperty Name="Userid" ColumnName="Userid" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Request">
+            <EntityTypeMapping TypeName="DTWFModel.Request">
+              <MappingFragment StoreEntitySet="Request">
+                <ScalarProperty Name="reminerid" ColumnName="reminerid" />
+                <ScalarProperty Name="Accept_at" ColumnName="Accept_at" />
+                <ScalarProperty Name="Send_at" ColumnName="Send_at" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Assigned_count" ColumnName="Assigned_count" />
+                <ScalarProperty Name="Group_id" ColumnName="Group_id" />
+                <ScalarProperty Name="Receiver_id" ColumnName="Receiver_id" />
+                <ScalarProperty Name="Sender_id" ColumnName="Sender_id" />
+                <ScalarProperty Name="Tasbeeh_Id" ColumnName="Tasbeeh_Id" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

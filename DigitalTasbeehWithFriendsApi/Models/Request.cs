@@ -23,5 +23,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public string Status { get; set; }
         public System.DateTime Send_at { get; set; }
         public Nullable<System.DateTime> Accept_at { get; set; }
+        public Nullable<int> reminerid { get; set; }
     }
 }

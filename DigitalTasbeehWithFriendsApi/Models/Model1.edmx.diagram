@@ -6,7 +6,6 @@
     <edmx:Diagrams>
       <Diagram DiagramId="40116fa03aec43389753f12187ffaec2" Name="Diagram1" ZoomLevel="78">
         <EntityTypeShape EntityType="DTWFModel.Quran_Tasbeeh" Width="1.5" PointX="0.75" PointY="7.75" />
-        <EntityTypeShape EntityType="DTWFModel.Request" Width="1.5" PointX="2.75" PointY="7.75" />
         <EntityTypeShape EntityType="DTWFModel.Tasbeeh_Detailes" Width="1.5" PointX="7.75" PointY="6.75" />
         <EntityTypeShape EntityType="DTWFModel.GroupUsers" Width="1.5" PointX="9.375" PointY="0.75" />
         <EntityTypeShape EntityType="DTWFModel.quran_text" Width="1.5" PointX="9.625" PointY="9.75" />
@@ -24,6 +23,7 @@
         <EntityTypeShape EntityType="DTWFModel.SingleTasbeeh" Width="1.5" PointX="5.375" PointY="3.75" />
         <EntityTypeShape EntityType="DTWFModel.leavegroupusertasbeehdeatiles" Width="1.5" PointX="12.375" PointY="9.75" />
         <EntityTypeShape EntityType="DTWFModel.tasbeehlogs" Width="1.5" PointX="9.375" PointY="12.75" />
+        <EntityTypeShape EntityType="DTWFModel.Request" Width="1.5" PointX="11.375" PointY="13.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

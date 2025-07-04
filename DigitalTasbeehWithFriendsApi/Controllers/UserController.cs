@@ -116,7 +116,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
         public HttpResponseMessage Login(String email,String password)
         {
 
-            try
+            try 
             {
                 var User = Db.Users.Where(a => a.Email.ToLower() == email.ToLower() && a.Password == password).FirstOrDefault();
                 if (User == null) {

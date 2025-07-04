@@ -26,7 +26,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
         }
     
         public virtual DbSet<Quran_Tasbeeh> Quran_Tasbeeh { get; set; }
-        public virtual DbSet<Request> Request { get; set; }
         public virtual DbSet<Tasbeeh_Detailes> Tasbeeh_Detailes { get; set; }
         public virtual DbSet<GroupUsers> GroupUsers { get; set; }
         public virtual DbSet<quran_text> quran_text { get; set; }
@@ -44,5 +43,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public virtual DbSet<SingleTasbeeh> SingleTasbeeh { get; set; }
         public virtual DbSet<leavegroupusertasbeehdeatiles> leavegroupusertasbeehdeatiles { get; set; }
         public virtual DbSet<tasbeehlogs> tasbeehlogs { get; set; }
+        public virtual DbSet<Request> Request { get; set; }
     }
 }

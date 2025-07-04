@@ -93,7 +93,9 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Assigned_count = assignedCount,
                         Send_at = DateTime.Now,
                         Status = isAdmin ? "Accept" : "Pending",
-                        Accept_at = isAdmin ? DateTime.Now : (DateTime?)null
+                        Accept_at = isAdmin ? DateTime.Now : (DateTime?)null,
+                        reminerid=null
+
                     };
 
                     Db.Request.Add(newRequest);
@@ -168,7 +170,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                             Assigned_count = assignCount + extraCount, 
                             Send_at = DateTime.Now,
                             Status = Admin ? "Accept" : "Pending",
-                            Accept_at = Admin ? DateTime.Now : (DateTime?)null
+                            Accept_at = Admin ? DateTime.Now : (DateTime?)null,
+                            reminerid = null
                         };
 
                         if (Admin)
@@ -475,6 +478,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                     .Join(Db.Users, gu => gu.Members_id, u => u.ID, (gu, u) => new { gu, u })
                     .ToList();
                 int count = groupmembers.Count;
+                var data = Db.leavegroupusertasbeehdeatiles.Where(a => a.ID == leaveid).FirstOrDefault();
                 if (count == 0)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "No avalible members found.");
@@ -502,7 +506,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                             Assigned_count = assignCount + extraCount,
                             Send_at = DateTime.Now,
                             Status = Admin ? "Accept" : "Pending",
-                            Accept_at = Admin ? DateTime.Now : (DateTime?)null
+                            Accept_at = Admin ? DateTime.Now : (DateTime?)null,
+                            reminerid=data.Group_user_id
                         };
 
                         if (Admin)
@@ -540,7 +545,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Db.Request.Add(newRequest);
                     }
                 }
-                var data = Db.leavegroupusertasbeehdeatiles.Where(a => a.ID == leaveid).FirstOrDefault();
+              
                 data.Flag = 1;
                 Db.SaveChanges();
                 return Request.CreateResponse(HttpStatusCode.OK, "Tasbeeh Distributed Equally and Records Added.");
@@ -569,6 +574,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                 List<int> count = JsonConvert.DeserializeObject<List<int>>(form["count"]);
 
                 var adminGroup = Db.Groups.FirstOrDefault(g => g.ID == groupid);
+                var data = Db.leavegroupusertasbeehdeatiles.Where(a => a.ID == leaveid).FirstOrDefault();
                 if (adminGroup == null)
                 {
                     return Request.CreateResponse(HttpStatusCode.NotFound, "Group not found.");
@@ -594,7 +600,8 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Assigned_count = assignedCount,
                         Send_at = DateTime.Now,
                         Status = isAdmin ? "Accept" : "Pending",
-                        Accept_at = isAdmin ? DateTime.Now : (DateTime?)null
+                        Accept_at = isAdmin ? DateTime.Now : (DateTime?)null,
+                        reminerid = data.Group_user_id
                     };
                     Db.Request.Add(newRequest);
 
@@ -607,7 +614,7 @@ namespace DigitalTasbeehWithFriendsApi.Controllers
                         Db.SaveChanges();
                     }
                 }
-                var data = Db.leavegroupusertasbeehdeatiles.Where(a => a.ID == leaveid).FirstOrDefault();
+              
                 data.Flag = 1;
                 Db.SaveChanges(); 
               

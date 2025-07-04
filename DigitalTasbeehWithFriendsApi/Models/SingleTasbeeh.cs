@@ -18,5 +18,6 @@ namespace DigitalTasbeehWithFriendsApi.Models
         public string Title { get; set; }
         public int User_id { get; set; }
         public Nullable<bool> Flag { get; set; }
+        public Nullable<int> schedule { get; set; }
     }
 }
